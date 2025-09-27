@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<!-- saved from url=(0065)file:///C:/Users/ak2809/Downloads/logistic_regression_slides.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistic Regression &amp; Gradient Descent</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            display: none;
+            padding: 60px;
+            height: 100vh;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .slide-container.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide-content {
+            max-width: 1000px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            color: #ffd700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        h3 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #87ceeb;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .bullet-point {
+            font-size: 1.4em;
+            margin: 20px 0;
+            text-align: left;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .bullet-point:before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #ffd700;
+        }
+
+        .formula {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5em;
+            margin: 25px 0;
+            border-left: 5px solid #ffd700;
+            backdrop-filter: blur(5px);
+        }
+
+        .code-block {
+            background: rgba(0,0,0,0.7);
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            margin: 25px 0;
+            text-align: left;
+            border: 1px solid #ffd700;
+            overflow-x: auto;
+        }
+
+        .comparison {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+
+        .comparison-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            width: 45%;
+            backdrop-filter: blur(5px);
+        }
+
+        .correct {
+            border-left: 5px solid #00ff00;
+        }
+
+        .incorrect {
+            border-left: 5px solid #ff4444;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid #ffd700;
+            color: white;
+            padding: 12px 20px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: rgba(255,215,0,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,215,0,0.4);
+        }
+
+        .slide-number {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            font-size: 1.2em;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .example-box {
+            background: rgba(255,215,0,0.1);
+            border: 2px solid #ffd700;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            backdrop-filter: blur(5px);
+        }
+
+        .visual-demo {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .sigmoid-visual {
+            width: 300px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .gradient-arrow {
+            font-size: 2em;
+            color: #ffd700;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .intro-animation {
+            animation: slideIn 1s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .pro-item, .con-item {
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .pro-item {
+            background: rgba(0,255,0,0.1);
+            border-left: 4px solid #00ff00;
+        }
+
+        .con-item {
+            background: rgba(255,0,0,0.1);
+            border-left: 4px solid #ff4444;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Title -->
+    <div class="slide-container">
+        <div class="slide-content intro-animation">
+            <h1>Logistic Regression &amp; Gradient Descent</h1>
+            <h3> Prepared by: Adel Khorramrouz</h3>
+            <div class="subtitle">CS461, Fall 2025</div>
+         </div>
+    </div>
+
+    <!-- Slide 2: Learning Objectives -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Learning Objectives</h2>
+            <div class="bullet-point">Linear vs logistic regression</div>
+            <div class="bullet-point">Sigmoid function and its properties</div>
+            <div class="bullet-point">Math behind logistic regression</div>
+            <div class="bullet-point">Gradient Descent optimization</div>
+            <div class="bullet-point">Implement logistic regression from scratch</div>
+            <div class="bullet-point">Apply to real-world problems (spam detection, medical diagnosis)</div>
+        </div>
+    </div>
+
+    <!-- Slide 3: What is Classification? -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>What is Binary Classification?</h2>
+            <div class="example-box">
+                <h3>Real-World Examples</h3>
+                <div class="comparison">
+                    <div class="comparison-item">
+                        <strong>Medical:</strong> Disease/No Disease<br>
+                        <strong>Finance:</strong> Loan Default/Safe<br>
+                        <strong>Marketing:</strong> Buy/Don't Buy
+                    </div>
+                    <div class="comparison-item">
+                        <strong>Technology:</strong> Spam/Ham Email<br>
+                        <strong>Security:</strong> Fraud/Legitimate<br>
+                        <strong>Education:</strong> Pass/Fail
+                    </div>
+                </div>
+            </div>
+            <div class="subtitle">We need to predict probabilities, not continuous values!</div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Linear vs Logistic -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Linear vs Logistic Regression</h2>
+            <div class="comparison">
+                <div class="comparison-item incorrect">
+                    <h3>Linear Regression ❌</h3>
+                    <div>Output: Any real number</div>
+                    <div>Range: -∞ to +∞</div>
+                    <div>Example: -2.1, 0.7, 1.8, 3.2</div>
+                    <div style="color: #ff4444;">Not valid probabilities!</div>
+                </div>
+                <div class="comparison-item correct">
+                    <h3>Logistic Regression ✅</h3>
+                    <div>Output: Probability</div>
+                    <div>Range: 0 to 1</div>
+                    <div>Example: 0.1, 0.6, 0.8, 0.9</div>
+                    <div style="color: #00ff00;">Perfect for classification!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: The Sigmoid Function -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>The Sigmoid Function: The Key to Everything</h2>
+            <div class="formula">
+                σ(z) = 1 / (1 + e^(-z))
+            </div>
+            <div class="visual-demo">
+                <img src="./Logistic Regression &amp; Gradient Descent_files/Sigmoid-Activation-Function.png" alt="Sigmoid Function" style="width: 300px; height: 200px; border-radius: 15px;">
+                <div>
+                    <div><strong>z = -∞</strong> → σ(z) = 0.0</div>
+                    <div><strong>z = 0</strong> → σ(z) = 0.5</div>
+                    <div><strong>z = +∞</strong> → σ(z) = 1.0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Sigmoid Properties -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Sigmoid Function Properties</h2>
+            <div class="example-box">
+                <h3>Key Characteristics</h3>
+                <div class="bullet-point">Maps any real number to probability (0-1)</div>
+                <div class="bullet-point">S-shaped curve (smooth transition)</div>
+                <div class="bullet-point">σ(0) = 0.5 (decision boundary)</div>
+                <div class="bullet-point">Differentiable everywhere</div>
+            </div>
+            <div class="formula">
+                Decision Rule:<br>
+                If σ(z) ≥ 0.5 → Predict Class 1<br>
+                If σ(z) &lt; 0.5 → Predict Class 0
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: The Mathematics -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Logistic Regression Model</h2>
+            <div class="formula">
+                z = β₀ + β₁x₁ + β₂x₂ + ... + βₙxₙ
+            </div>
+            <div class="formula">
+                P(y=1|x) = σ(z) = 1 / (1 + e^(-z))
+            </div>
+            <div class="example-box">
+                <h3>Example: Email Spam Detection</h3>
+                <div class="code-block">
+z = β₀ + β₁×freq_free + β₂×freq_money + β₃×exclamation_count
+
+Email: "FREE MONEY!!!" 
+→ z = 0.5 + 2×3 + 1.5×1 + 0.8×3 = 10.4
+→ P(spam) = σ(10.4) = 0.999 → SPAM!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Cost Function -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Why Not Mean Squared Error?</h2>
+            <div class="comparison">
+                <div class="comparison-item incorrect">
+                    <h3>MSE Problem ❌</h3>
+                    <div>Non-convex for sigmoid</div>
+                    <div>Multiple local minima</div>
+                    <div>Hard to optimize</div>
+                </div>
+                <div class="comparison-item correct">
+                    <h3>Log-Likelihood ✅</h3>
+                    <div>Convex function</div>
+                    <div>Single global minimum</div>
+                    <div>Easy to optimize</div>
+                </div>
+            </div>
+            <div class="formula">
+                Cost = -1/m × Σ[y×log(σ(z)) + (1-y)×log(1-σ(z))]
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Gradient Descent Introduction -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Gradient Descent: Finding the Best Parameters</h2>
+            <div class="example-box">
+                <h3>The Optimization Challenge</h3>
+                <div class="subtitle">We have millions of possible parameter values (β₀, β₁, β₂, ...)</div>
+                <div class="subtitle">Which combination minimizes our cost function?</div>
+            </div>
+            <div class="visual-demo">
+                <div class="gradient-arrow">🎯</div>
+                <div>
+                    <div class="bullet-point">Start with random parameters</div>
+                    <div class="bullet-point">Calculate cost</div>
+                    <div class="bullet-point">Find direction of steepest descent</div>
+                    <div class="bullet-point">Take a step in that direction</div>
+                    <div class="bullet-point">Repeat until convergence</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Gradient Descent Formula -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Gradient Descent Mathematics</h2>
+            <div class="formula">
+                βⱼ = βⱼ - α × (∂Cost/∂βⱼ)
+            </div>
+            <div class="example-box">
+                <h3>Components Explained</h3>
+                <div class="bullet-point"><strong>βⱼ:</strong> Parameter we're updating</div>
+                <div class="bullet-point"><strong>α (alpha):</strong> Learning rate (step size)</div>
+                <div class="bullet-point"><strong>∂Cost/∂βⱼ:</strong> Gradient (slope)</div>
+            </div>
+            <!-- <div class="formula">
+                For Logistic Regression:<br>
+                ∂Cost/∂βⱼ = 1/m × Σ[(σ(z) - y) × x]
+            </div> -->
+        </div>
+    </div>
+
+    <!-- Slide 11: Learning Rate -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Learning Rate: The Critical Parameter</h2>
+            <div class="pros-cons">
+                <div>
+                    <div class="con-item">
+                        <h3>α too large 📈</h3>
+                        <div>Overshoots minimum</div>
+                        <div>May never converge</div>
+                        <div>Unstable training</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="con-item">
+                        <h3>α too small 🐌</h3>
+                        <div>Very slow progress</div>
+                        <div>Takes forever to converge</div>
+                        <div>Computationally expensive</div>
+                    </div>
+                </div>
+            </div>
+            <div class="example-box">
+                <h3>Good Starting Values</h3>
+                <div class="formula">α = 0.01, 0.1, 0.3 (experiment and adjust)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Implementation Steps -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Step-by-Step Implementation</h2>
+            <pre class="code-block">"""
+            # Step 1: Initialize
+            def sigmoid(z):
+                return 1 / (1 + np.exp(-np.clip(z, -250, 250)))
+
+            ## Step 2: Cost Function
+            def compute_cost(X, y, weights):
+                predictions = sigmoid(X.dot(weights))
+                return -np.mean(y*np.log(predictions) + (1-y)*np.log(1-predictions))
+
+            ## Step 3: Gradients
+            def compute_gradients(X, y, weights):
+                predictions = sigmoid(X.dot(weights))
+                return X.T.dot(predictions - y) / len(y)
+
+            ## Step 4: Update
+            weights = weights - learning_rate * gradients"""
+            </pre>
+        </div>
+    </div>
+
+    <!-- Slide 13: Real Example - Spam Detection -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Real-World Example: Email Spam Detection</h2>
+            <div class="example-box">
+                <h3>Problem Setup</h3>
+                <div class="bullet-point"><strong>Features:</strong> word frequencies, punctuation counts</div>
+                <div class="bullet-point"><strong>Target:</strong> 1 = Spam, 0 = Ham</div>
+            </div>
+            <pre class="code-block"># Sample emails and features
+Email 1: "FREE MONEY NOW!!!" → [1, 1, 3] → Spam (1)
+Email 2: "Meeting at 3pm"     → [0, 0, 0] → Ham (0)  
+Email 3: "Free trial offer"   → [1, 0, 0] → Ham (0)
+
+# Model
+P(Spam) = σ(β₀ + β₁×freq_free + β₂×freq_money + β₃×exclamation)</pre></div>
+            
+    </div>
+
+
+    <!-- Slide 15: Making Predictions -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Making Predictions</h2>
+            <pre class="code-block"># New email: "Get FREE cash fast!!!"
+features = [2, 1, 3]  # [freq_free, freq_money, exclamation_count]
+
+# Calculate probability
+z = weights[0] + weights[1]*2 + weights[2]*1 + weights[3]*3
+probability = sigmoid(z)
+prediction = "SPAM" if probability &gt; 0.5 else "HAM"
+
+print(f"Probability of spam: {probability:.3f}")
+print(f"Prediction: {prediction}")</pre>
+            <div class="example-box">
+                <h3>Interpreting Results</h3>
+                <div>Probability &gt; 0.5 → Spam</div>
+                <div>Probability &lt; 0.5 → Ham</div>
+                <div>Probability ≈ 0.5 → Uncertain</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15: Advantages & Limitations -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>Logistic Regression: Pros &amp; Cons</h2>
+            <div class="pros-cons">
+                <div>
+                    <div class="pro-item">
+                        <h3>Advantages ✅</h3>
+                        <div>Simple and interpretable</div>
+                        <div>Fast training and prediction</div>
+                        <div>No hyperparameter tuning needed</div>
+                        <div>Provides probability estimates</div>
+                        <div>Less prone to overfitting</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="con-item">
+                        <h3>Limitations ❌</h3>
+                        <div>Assumes linear decision boundary</div>
+                        <div>Sensitive to outliers</div>
+                        <div>Requires large sample sizes</div>
+                        <div>Can struggle with complex patterns</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 16: Comparison with Other Methods -->
+    <div class="slide-container">
+        <div class="slide-content">
+            <h2>When to Use Logistic Regression?</h2>
+            <div class="comparison">
+                <div class="comparison-item correct">
+                    <h3>Use Logistic Regression ✅</h3>
+                    <div>Binary classification problems</div>
+                    <div>Need probability estimates</div>
+                    <div>Want interpretable results</div>
+                    <div>Linear relationship exists</div>
+                    <div>Fast prediction required</div>
+                </div>
+                <div class="comparison-item incorrect">
+                    <h3>Consider Alternatives ⚠️</h3>
+                    <div>Complex non-linear patterns</div>
+                    <div>Small datasets</div>
+                    <div>Many irrelevant features</div>
+                    <div>Multi-class problems</div>
+                    <div>Need maximum accuracy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 20: Summary -->
+    <div class="slide-container active">
+        <div class="slide-content">
+            <h2>Key Takeaways</h2>
+            <div class="example-box">
+                <h3>Logistic Regression</h3>
+                <div class="bullet-point">Sigmoid function converts linear output to probabilities</div>
+                <div class="bullet-point">Uses log-likelihood cost function</div>
+                <div class="bullet-point">Perfect for binary classification problems</div>
+            </div>
+            <div class="example-box">
+                <h3>Gradient Descent</h3>
+                <div class="bullet-point">Iterative optimization algorithm</div>
+                <div class="bullet-point">Learning rate controls convergence speed</div>
+                <div class="bullet-point">Minimizes cost function to find best parameters</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-button" onclick="previousSlide()">← Previous</button>
+        <button class="nav-button" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <div class="slide-number">
+        <span id="current-slide">17</span> / <span id="total-slides">17</span>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide-container');
+        const totalSlides = slides.length;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                previousSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+
+</body></html>
