@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regularization in Machine Learning</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1000px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 0.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            font-size: 2.5em;
+            margin-bottom: 0.8em;
+            color: #FFD700;
+        }
+
+        h3 {
+            font-size: 2em;
+            margin-bottom: 0.6em;
+            color: #87CEEB;
+        }
+
+        p, li {
+            font-size: 1.4em;
+            line-height: 1.6;
+            margin-bottom: 1em;
+        }
+
+        .formula {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3em;
+            border-left: 5px solid #FFD700;
+        }
+
+        .comparison-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .comparison-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .comparison-card h4 {
+            color: #FFD700;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+        }
+
+        .key-points {
+            text-align: left;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .key-points ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .key-points li:before {
+            content: "✓ ";
+            color: #90EE90;
+            font-weight: bold;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.2em;
+        }
+
+        .analogy-box {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .code-snippet {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-align: left;
+            font-size: 1.1em;
+            overflow-x: auto;
+        }
+
+        .highlight {
+            background: rgba(255,215,0,0.3);
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">12</span>
+    </div>
+
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>🎯 Regularization in Machine Learning</h1>
+            <h3>L1, L2, and Beyond</h3>
+            <h4> Adel Khorramrouz, CS461, Fall 2025
+            <p style="font-size: 1.6em; margin-top: 50px;">
+                Preventing Overfitting with Mathematical Elegance
+            </p>
+            <div class="analogy-box">
+                <p><strong>Like a speed limit for your model's complexity!</strong></p>
+            </div>
+        </div>
+
+        <!-- Slide 2: The Problem -->
+        <div class="slide">
+            <h2>🚨 The Overfitting Problem</h2>
+            <div class="comparison-table">
+                <div class="comparison-card">
+                    <h4>Training Data</h4>
+                    <p>Perfect Performance ✅</p>
+                    <p>Memorizes every detail</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>New Data</h4>
+                    <p>Poor Performance ❌</p>
+                    <p>Can't generalize</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>The Solution</h4>
+                    <p>Regularization 🎯</p>
+                    <p>Balanced learning</p>
+                </div>
+            </div>
+            <div class="analogy-box">
+                <strong>Real-World Analogy:</strong> Like memorizing every pothole on your practice driving route vs. learning general driving principles
+            </div>
+        </div>
+
+        <!-- Slide 3: What is Regularization -->
+        <div class="slide">
+            <h2>🔧 What is Regularization?</h2>
+            <div class="formula">
+                Total Loss = Original Loss + λ × Penalty Term
+            </div>
+            <div class="key-points">
+                <ul>
+                    <li><strong>λ (lambda):</strong> Controls regularization strength</li>
+                    <li><strong>Penalty Term:</strong> Constrains model complexity</li>
+                    <li><strong>Trade-off:</strong> Fit vs. Generalization</li>
+                    <li><strong>Goal:</strong> Better performance on new data</li>
+                </ul>
+            </div>
+            <p style="color: #FFD700; font-size: 1.5em;">
+                It's like adding training wheels to prevent your model from "falling over"!
+            </p>
+        </div>
+
+        <!-- Slide 4: L2 Regularization -->
+        <div class="slide">
+            <h2>🟦 L2 Regularization (Ridge)</h2>
+            <div class="formula">
+                Ridge Loss = Original Loss + λ × Σ(wi²)
+            </div>
+            <div class="comparison-table">
+                <div class="comparison-card">
+                    <h4>Key Properties</h4>
+                    <ul style="text-align: left; font-size: 1.2em;">
+                        <li>Shrinks weights toward zero</li>
+                        <li>Doesn't eliminate features</li>
+                        <li>Handles correlated features well</li>
+                        <li>Smooth penalty function</li>
+                    </ul>
+                </div>
+                <div class="comparison-card">
+                    <h4>Geometric View</h4>
+                    <p>Constrains weights within a <span class="highlight">circle/sphere</span></p>
+                    <p style="font-size: 3em;">⭕</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>Best For</h4>
+                    <ul style="text-align: left; font-size: 1.2em;">
+                        <li>Stock price prediction</li>
+                        <li>Risk modeling</li>
+                        <li>Any correlated features</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: L1 Regularization -->
+        <div class="slide">
+            <h2>🟨 L1 Regularization (Lasso)</h2>
+            <div class="formula">
+                Lasso Loss = Original Loss + λ × Σ|wi|
+            </div>
+            <div class="comparison-table">
+                <div class="comparison-card">
+                    <h4>Key Properties</h4>
+                    <ul style="text-align: left; font-size: 1.2em;">
+                        <li>Sets weights to exactly zero</li>
+                        <li>Automatic feature selection</li>
+                        <li>Creates sparse models</li>
+                        <li>Sharp penalty function</li>
+                    </ul>
+                </div>
+                <div class="comparison-card">
+                    <h4>Geometric View</h4>
+                    <p>Constrains weights within a <span class="highlight">diamond/cube</span></p>
+                    <p style="font-size: 3em;"></p>
+                </div>
+                <div class="comparison-card">
+                    <h4>Best For</h4>
+                    <ul style="text-align: left; font-size: 1.2em;">
+                        <li>Medical diagnosis</li>
+                        <li>Gene selection</li>
+                        <li>Text classification</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: L1 vs L2 Comparison -->
+        <div class="slide">
+            <h2>⚖️ L1 vs L2: The Ultimate Showdown</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0;">
+                <div class="comparison-card" style="border-left: 5px solid #FFD700;">
+                    <h3 style="color: #FFD700;">L1 (Lasso) 🎯</h3>
+                    <ul style="text-align: left; font-size: 1.2em;">
+                        <li>Feature Selection ✂️</li>
+                        <li>Sparse Solutions 🕳️</li>
+                        <li>Interpretable Models 📖</li>
+                        <li>Handles Irrelevant Features 🗑️</li>
+                    </ul>
+                    <div class="formula" style="font-size: 1em;">λ × Σ|wi|</div>
+                </div>
+                <div class="comparison-card" style="border-left: 5px solid #87CEEB;">
+                    <h3 style="color: #87CEEB;">L2 (Ridge) 🌊</h3>
+                    <ul style="text-align: left; font-size: 1.2em;">
+                        <li>Smooth Shrinkage 📉</li>
+                        <li>Handles Correlations 🔗</li>
+                        <li>Stable Solutions 🏔️</li>
+                        <li>Better Predictions 🎯</li>
+                    </ul>
+                    <div class="formula" style="font-size: 1em;">λ × Σ(wi²)</div>
+                </div>
+            </div>
+            <div class="analogy-box">
+                <strong>Think of it as:</strong> L1 = Marie Kondo (keeps only what sparks joy) vs L2 = Gentle Nudging (everything stays, just smaller)
+            </div>
+        </div>
+
+        <!-- Slide 7: Elastic Net -->
+        <div class="slide">
+            <h2>🕸️ Elastic Net: Best of Both Worlds</h2>
+            <div class="formula">
+                Elastic Net = Original Loss + λ₁×Σ|wi| + λ₂×Σ(wi²)
+            </div>
+            <div class="key-points">
+                <h3>Why Elastic Net? 🤔</h3>
+                <ul>
+                    <li><strong>Feature Selection:</strong> Like L1, but more stable</li>
+                    <li><strong>Correlated Features:</strong> Like L2, handles them well</li>
+                    <li><strong>l1_ratio parameter:</strong> Controls the mix (0=Ridge, 1=Lasso)</li>
+                    <li><strong>Robust:</strong> Works well in most situations</li>
+                </ul>
+            </div>
+            <div class="analogy-box">
+                <strong>Real Example:</strong> Customer segmentation with mixed feature types - demographics (correlated) + sparse behavioral data
+            </div>
+        </div>
+
+        <!-- Slide 8: Code Example Preview -->
+        <div class="slide">
+            <h2>💻 Implementation Preview</h2>
+            <div class="code-snippet">
+<pre># Ridge Regression Example
+from sklearn.linear_model import Ridge
+from sklearn.preprocessing import StandardScaler
+
+# Always scale your features!
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Try different regularization strengths
+for alpha in [0.1, 1, 10, 100]:
+    ridge = Ridge(alpha=alpha)
+    ridge.fit(X_train_scaled, y_train)
+    score = ridge.score(X_test_scaled, y_test)
+    print(f"Alpha {alpha}: Score = {score:.3f}")
+</pre>
+            </div>
+            <p style="color: #90EE90; font-size: 1.3em;">
+                🔑 Key Insight: Always use cross-validation to find the best α (alpha)!
+            </p>
+        </div>
+
+
+
+        <!-- Slide 10: When to Use What -->
+        <div class="slide">
+            <h2>🎯 Decision Framework: When to Use What?</h2>
+            <div style="display: grid; grid-template-rows: repeat(3, 1fr); gap: 20px; margin: 30px 0;">
+                <div class="comparison-card" style="background: linear-gradient(45deg, #FF6B6B, #FF8E53);">
+                    <h3>Use L1 (Lasso) When:</h3>
+                    <p>🔍 Many features, few are important • 📊 Need interpretable models • 🧬 High-dimensional data (genetics, text)</p>
+                </div>
+                <div class="comparison-card" style="background: linear-gradient(45deg, #4ECDC4, #44A08D);">
+                    <h3>Use L2 (Ridge) When:</h3>
+                    <p>🔗 Features are correlated • 🎯 Prediction accuracy is priority • 📈 Traditional regression problems</p>
+                </div>
+                <div class="comparison-card" style="background: linear-gradient(45deg, #A8EDEA, #FED6E3);">
+                    <h3>Use Elastic Net When:</h3>
+                    <p>❓ Unsure which to choose • 🔄 Mixed scenarios • 🎪 Want feature selection + stability</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Common Pitfalls -->
+        <div class="slide">
+            <h2>⚠️ Common Pitfalls (And How to Avoid Them!)</h2>
+            <div class="key-points">
+                <ul>
+                    <li><strong>Forgetting to scale features:</strong> Use StandardScaler always!</li>
+                    <li><strong>Using default parameters:</strong> Cross-validate to find optimal α</li>
+                    <li><strong>Ignoring the bias-variance tradeoff:</strong> Plot learning curves</li>
+                    <li><strong>Not understanding your data:</strong> Explore correlations first</li>
+                    <li><strong>Overfitting to validation set:</strong> Use nested cross-validation</li>
+                </ul>
+            </div>
+            <div class="analogy-box">
+                <strong>Pro Tip:</strong> Start with Ridge, try Lasso if you need feature selection, use Elastic Net when in doubt!
+            </div>
+        </div>
+
+        <!-- Slide 12: Summary -->
+        <div class="slide">
+            <h2>🎓 Key Takeaways</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div class="key-points">
+                    <h3>Remember the Math:</h3>
+                    <ul>
+                        <li><strong>L1:</strong> λ × Σ|wi| → Sparse</li>
+                        <li><strong>L2:</strong> λ × Σ(wi²) → Smooth</li>
+                        <li><strong>Both:</strong> Control overfitting</li>
+                    </ul>
+                </div>
+                <div class="key-points">
+                    <h3>Practical Steps:</h3>
+                    <ul>
+                        <li>Scale your features</li>
+                        <li>Cross-validate α</li>
+                        <li>Plot regularization paths</li>
+                        <li>Choose based on your goal</li>
+                    </ul>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">⬅ Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next ➡</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[n].classList.add('active');
+            document.getElementById('current-slide').textContent = n + 1;
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        function previousSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight' || event.key === ' ') {
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                previousSlide();
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
