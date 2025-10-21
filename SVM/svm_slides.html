@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Vector Machines (SVM) - Complete Tutorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            background: white;
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            border-radius: 20px;
+            padding: 60px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #764ba2;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #5a67d8;
+            font-size: 1.8em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        p, li {
+            font-size: 1.3em;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        ul, ol {
+            margin-left: 40px;
+            margin-bottom: 20px;
+        }
+
+        .formula {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.4em;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .box {
+            background: #e0e7ff;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px solid #667eea;
+        }
+
+        .box-green {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+
+        .box-red {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .box-yellow {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .nav-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-number {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.1em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        code {
+            background: #f7fafc;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e53e3e;
+        }
+
+        .kernel-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .kernel-card {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #667eea;
+        }
+
+        .kernel-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>🎯 Support Vector Machines (SVM)</h1>
+            <h2 style="text-align: center; border: none; color: #667eea;">A Complete Tutorial</h2>
+            <div class="box" style="margin-top: 60px; text-align: center; font-size: 1.5em;">
+                <p><strong>Topics Covered:</strong></p>
+                <ul style="list-style: none; margin: 30px 0;">
+                    <li>✅ Hard Margin SVM</li>
+                    <li>✅ Soft Margin SVM & Loss Functions</li>
+                    <li>✅ Optimization Problems</li>
+                    <li>✅ Kernel Trick & Non-Linear Classification</li>
+                    <li>✅ Practical Applications</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 2: What is SVM? -->
+        <div class="slide">
+            <h2>What is SVM? 🤔</h2>
+            <p><strong>Support Vector Machine (SVM)</strong> is a powerful supervised learning algorithm for classification and regression.</p>
+            
+            <h3>Core Idea:</h3>
+            <div class="box box-green">
+                <p><span class="emoji">🎯</span> Find the <span class="highlight">hyperplane</span> that best separates different classes</p>
+                <p><span class="emoji">📏</span> Maximize the <span class="highlight">margin</span> (distance) between classes</p>
+                <p><span class="emoji">⚡</span> The closest points are called <span class="highlight">support vectors</span></p>
+            </div>
+
+            <h3>Real-World Analogy:</h3>
+            <p>Imagine placing red and blue balls on a table. SVM draws a line that:</p>
+            <ul>
+                <li>Separates the colors</li>
+                <li>Is as far as possible from both groups</li>
+                <li>Only depends on the balls closest to the line (support vectors)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Hard Margin SVM -->
+        <div class="slide">
+            <h2>Hard Margin SVM 💪</h2>
+            
+            <h3>When to Use:</h3>
+            <div class="box">
+                <p>Data is <span class="highlight">perfectly linearly separable</span> - a hyperplane can completely separate classes with NO errors</p>
+            </div>
+
+            <h3>Optimization Problem:</h3>
+            <div class="formula">
+                minimize: ½||w||²
+            </div>
+            <div class="formula">
+                subject to: yᵢ(wᵀxᵢ + b) ≥ 1, ∀i
+            </div>
+
+            <h3>What does this mean?</h3>
+            <ul>
+                <li><strong>w</strong>: weight vector (defines hyperplane orientation)</li>
+                <li><strong>b</strong>: bias term (defines hyperplane position)</li>
+                <li><strong>Margin width</strong>: 2/||w||</li>
+                <li><strong>Goal</strong>: Minimize ||w||² → Maximize margin 2/||w||</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Hard Margin Limitations -->
+        <div class="slide">
+            <h2>Problems with Hard Margin ❌</h2>
+            
+            <div class="box box-red">
+                <h3>Critical Limitations:</h3>
+                <ol>
+                    <li><strong>Perfect Separation Required</strong>: Only works when data is 100% linearly separable</li>
+                    <li><strong>Extremely Sensitive to Outliers</strong>: A single misplaced point can drastically change the hyperplane</li>
+                    <li><strong>Not Practical</strong>: Real-world data is almost never perfectly separable</li>
+                    <li><strong>No Flexibility</strong>: Cannot handle noise in data</li>
+                </ol>
+            </div>
+
+            <h3>Example Problem:</h3>
+            <p>Imagine 99 red points and 99 blue points perfectly separated, then ONE blue point appears on the red side. Hard margin SVM would FAIL completely! 😱</p>
+
+            <div class="box box-yellow">
+                <p><strong>Solution:</strong> We need a more flexible approach → <span class="highlight">Soft Margin SVM</span></p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Soft Margin SVM Introduction -->
+        <div class="slide">
+            <h2>Soft Margin SVM: The Practical Solution ✨</h2>
+            
+            <h3>Why Soft Margin?</h3>
+            <div class="two-column">
+                <div class="box box-red">
+                    <h4>Real-World Data is:</h4>
+                    <ul style="font-size: 1.1em;">
+                        <li>Noisy</li>
+                        <li>Has outliers</li>
+                        <li>Rarely perfect</li>
+                        <li>Overlapping classes</li>
+                    </ul>
+                </div>
+                <div class="box box-green">
+                    <h4>Soft Margin Allows:</h4>
+                    <ul style="font-size: 1.1em;">
+                        <li>Some misclassifications</li>
+                        <li>Points within margin</li>
+                        <li>Robustness to outliers</li>
+                        <li>Trade-off control</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Key Concept: Slack Variables (ξᵢ)</h3>
+            <p>We introduce <span class="highlight">slack variables</span> that measure how much each point violates the margin:</p>
+            <ul>
+                <li>ξᵢ = 0: Point is correctly classified beyond margin ✅</li>
+                <li>0 < ξᵢ < 1: Point is within margin but correctly classified ⚠️</li>
+                <li>ξᵢ ≥ 1: Point is misclassified ❌</li>
+            </ul>
+        </div>
+
+        <!-- Slide 6: Soft Margin Optimization -->
+        <div class="slide">
+            <h2>Soft Margin Optimization Problem 📐</h2>
+            
+            <div class="formula">
+                minimize: ½||w||² + C·Σξᵢ
+            </div>
+            <div class="formula">
+                subject to: yᵢ(wᵀxᵢ + b) ≥ 1 - ξᵢ<br>
+                ξᵢ ≥ 0, ∀i
+            </div>
+
+            <h3>The Two Terms Explained:</h3>
+            <div class="two-column">
+                <div class="box">
+                    <h4>Term 1: ½||w||²</h4>
+                    <p><strong>Margin Maximization</strong></p>
+                    <p>Makes the margin as wide as possible</p>
+                </div>
+                <div class="box">
+                    <h4>Term 2: C·Σξᵢ</h4>
+                    <p><strong>Violation Penalty</strong></p>
+                    <p>Penalizes points that violate the margin</p>
+                </div>
+            </div>
+
+            <h3>The C Parameter (Regularization): 🎚️</h3>
+            <div class="box box-yellow">
+                <p><strong>C controls the trade-off between margin width and violations:</strong></p>
+                <ul>
+                    <li><strong>Large C (e.g., 100)</strong>: Fewer violations → narrower margin → risk of overfitting</li>
+                    <li><strong>Small C (e.g., 0.01)</strong>: More violations → wider margin → risk of underfitting</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: Hinge Loss -->
+        <div class="slide">
+            <h2>The Hinge Loss Function 📊</h2>
+            
+            <h3>Mathematical Definition:</h3>
+            <div class="formula">
+                L<sub>hinge</sub>(y, f(x)) = max(0, 1 - y·f(x))
+            </div>
+            <p style="text-align: center; color: #666;">where f(x) = wᵀx + b</p>
+
+            <h3>Understanding the Loss:</h3>
+            <div class="box box-green">
+                <p><strong>z = y·f(x)</strong> represents margin (confidence × correctness)</p>
+                <ol>
+                    <li><strong>z ≥ 1</strong> (Beyond margin, correct): Loss = 0 ✅</li>
+                    <li><strong>0 ≤ z < 1</strong> (Within margin, correct): Loss = 1-z ⚠️</li>
+                    <li><strong>z < 0</strong> (Misclassified): Loss = 1-z (large penalty) ❌</li>
+                </ol>
+            </div>
+
+            <h3>Why "Hinge"?</h3>
+            <p>The loss function looks like a door hinge:</p>
+            <ul>
+                <li>Flat (loss=0) when z ≥ 1</li>
+                <li>Linear increase when z < 1</li>
+                <li>Acts as a "soft" threshold</li>
+            </ul>
+        </div>
+
+        <!-- Slide 8: Hard vs Soft Comparison -->
+        <div class="slide">
+            <h2>Hard Margin vs Soft Margin 🆚</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Hard Margin</th>
+                        <th>Soft Margin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Data Requirement</strong></td>
+                        <td>Must be perfectly separable</td>
+                        <td>Can handle non-separable data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Optimization</strong></td>
+                        <td>min ½||w||²</td>
+                        <td>min ½||w||² + C·Σξᵢ</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Constraints</strong></td>
+                        <td>yᵢ(wᵀxᵢ + b) ≥ 1 (strict)</td>
+                        <td>yᵢ(wᵀxᵢ + b) ≥ 1 - ξᵢ (relaxed)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Loss Function</strong></td>
+                        <td>No explicit loss</td>
+                        <td>Hinge loss</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Violations</strong></td>
+                        <td>❌ None allowed</td>
+                        <td>✅ Controlled by C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Outlier Sensitivity</strong></td>
+                        <td>Very sensitive</td>
+                        <td>Robust</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Real-world Use</strong></td>
+                        <td>Rare</td>
+                        <td>Standard approach</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 9: Kernels Introduction -->
+        <div class="slide">
+            <h2>The Kernel Trick 🎩✨</h2>
+            
+            <h3>The Problem:</h3>
+            <div class="box box-red">
+                <p>What if data is NOT linearly separable, even with soft margins?</p>
+                <p>Example: Concentric circles, XOR patterns, spiral shapes</p>
+            </div>
+
+            <h3>The Solution:</h3>
+            <div class="box box-green">
+                <p><strong>Transform data to a higher-dimensional space where it BECOMES linearly separable!</strong></p>
+                <div class="formula">
+                    φ: ℝᵈ → ℝᴰ (where d < D)
+                </div>
+            </div>
+
+            <h3>The Magic: Kernel Trick 🪄</h3>
+            <p>Instead of explicitly computing φ(x), we use a <span class="highlight">kernel function</span>:</p>
+            <div class="formula">
+                K(xᵢ, xⱼ) = φ(xᵢ)ᵀ · φ(xⱼ)
+            </div>
+            <p style="text-align: center; font-size: 1.2em; margin-top: 20px;">
+                This computes the dot product in high-dimensional space <strong>WITHOUT explicitly going there!</strong>
+            </p>
+        </div>
+
+        <!-- Slide 10: Common Kernels -->
+        <div class="slide">
+            <h2>Common Kernel Functions 🔧</h2>
+            
+            <div class="kernel-grid">
+                <div class="kernel-card">
+                    <h4>1. Linear Kernel</h4>
+                    <div class="formula" style="font-size: 1.1em; margin: 10px 0;">
+                        K(xᵢ, xⱼ) = xᵢᵀxⱼ
+                    </div>
+                    <p><strong>Use when:</strong> Data is linearly separable</p>
+                    <p><strong>Advantage:</strong> Fast, interpretable</p>
+                </div>
+
+                <div class="kernel-card">
+                    <h4>2. Polynomial Kernel</h4>
+                    <div class="formula" style="font-size: 1.1em; margin: 10px 0;">
+                        K(xᵢ, xⱼ) = (γxᵢᵀxⱼ + r)ᵈ
+                    </div>
+                    <p><strong>Use when:</strong> Polynomial boundaries</p>
+                    <p><strong>Parameter:</strong> d = degree</p>
+                </div>
+
+                <div class="kernel-card" style="background: #e0f2fe; border-color: #0284c7;">
+                    <h4>3. RBF/Gaussian Kernel ⭐</h4>
+                    <div class="formula" style="font-size: 1.1em; margin: 10px 0;">
+                        K(xᵢ, xⱼ) = exp(-γ||xᵢ - xⱼ||²)
+                    </div>
+                    <p><strong>Use when:</strong> Complex non-linear boundaries</p>
+                    <p><strong>Most popular choice!</strong></p>
+                </div>
+
+                <div class="kernel-card">
+                    <h4>4. Sigmoid Kernel</h4>
+                    <div class="formula" style="font-size: 1.1em; margin: 10px 0;">
+                        K(xᵢ, xⱼ) = tanh(γxᵢᵀxⱼ + r)
+                    </div>
+                    <p><strong>Use when:</strong> Mimicking neural networks</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: RBF Kernel Deep Dive -->
+        <div class="slide">
+            <h2>RBF Kernel: Deep Dive 🔍</h2>
+            
+            <h3>Formula:</h3>
+            <div class="formula">
+                K(xᵢ, xⱼ) = exp(-γ||xᵢ - xⱼ||²)
+            </div>
+
+            <h3>The Gamma (γ) Parameter:</h3>
+            <div class="two-column">
+                <div class="box">
+                    <h4>Small γ (e.g., 0.01)</h4>
+                    <ul style="font-size: 1.1em;">
+                        <li>Wide reach</li>
+                        <li>Smoother boundary</li>
+                        <li>Points far away have influence</li>
+                        <li>More generalization</li>
+                    </ul>
+                </div>
+                <div class="box">
+                    <h4>Large γ (e.g., 10)</h4>
+                    <ul style="font-size: 1.1em;">
+                        <li>Close reach</li>
+                        <li>Complex boundary</li>
+                        <li>Only nearby points matter</li>
+                        <li>Risk of overfitting</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="box box-yellow">
+                <h3>Intuition:</h3>
+                <p>RBF kernel measures <strong>similarity</strong> based on distance:</p>
+                <ul>
+                    <li>Points close together → K ≈ 1 (very similar)</li>
+                    <li>Points far apart → K ≈ 0 (not similar)</li>
+                    <li>γ controls how quickly similarity decreases with distance</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 12: Kernel Example -->
+        <div class="slide">
+            <h2>Kernel Transformation Example 🎯</h2>
+            
+            <h3>Simple 1D → 2D Transformation:</h3>
+            <p>Consider data in 1D that's not linearly separable:</p>
+            <div class="box">
+                <p><strong>Original space:</strong> x = [-3, -2, -1, 0, 1, 2, 3]</p>
+                <p><strong>Classes overlap</strong> - cannot draw a single dividing point</p>
+            </div>
+
+            <h3>Apply Polynomial Transformation:</h3>
+            <div class="formula">
+                φ(x) = [x, x²]
+            </div>
+
+            <div class="box box-green">
+                <p><strong>New 2D space:</strong> φ(x) = [x, x²]</p>
+                <p>Now we can draw a horizontal line to separate classes!</p>
+                <p>The "line" in 2D becomes a curve when projected back to 1D</p>
+            </div>
+
+            <h3>Key Insight:</h3>
+            <p style="font-size: 1.4em; text-align: center; margin-top: 30px;">
+                <span class="highlight">The kernel computes K(xᵢ, xⱼ) = φ(xᵢ)·φ(xⱼ) without explicitly computing φ!</span>
+            </p>
+        </div>
+
+        <!-- Slide 13: Hyperparameter Tuning -->
+        <div class="slide">
+            <h2>Hyperparameter Tuning 🎛️</h2>
+            
+            <h3>Key Parameters to Tune:</h3>
+            
+            <div class="box">
+                <h4>1. C (Regularization Parameter)</h4>
+                <ul>
+                    <li><strong>Low C (0.01 - 0.1):</strong> Wide margin, more regularization, simpler model</li>
+                    <li><strong>Medium C (1):</strong> Balanced trade-off</li>
+                    <li><strong>High C (10 - 100):</strong> Narrow margin, less regularization, complex model</li>
+                </ul>
+            </div>
+
+            <div class="box">
+                <h4>2. Gamma (for RBF/Poly kernels)</h4>
+                <ul>
+                    <li><strong>Low γ (0.001 - 0.01):</strong> Smooth decision boundary</li>
+                    <li><strong>Medium γ (0.1 - 1):</strong> Moderate complexity</li>
+                    <li><strong>High γ (10+):</strong> Very complex boundary, risk overfitting</li>
+                </ul>
+            </div>
+
+            <h3>Best Practice:</h3>
+            <div class="box box-yellow">
+                <p><strong>Use Grid Search with Cross-Validation:</strong></p>
+                <ul>
+                    <li>Try multiple C and γ combinations</li>
+                    <li>Use 5-fold or 10-fold cross-validation</li>
+                    <li>Select parameters with best validation score</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14: When to Use SVM -->
+        <div class="slide">
+            <h2>When to Use SVM? 🤔</h2>
+            
+            <div class="two-column">
+                <div class="box box-green">
+                    <h3>✅ Use SVM When:</h3>
+                    <ul style="font-size: 1.1em;">
+                        <li><strong>High-dimensional data</strong> (text, genomics)</li>
+                        <li><strong>Clear margin</strong> between classes</li>
+                        <li><strong>Medium-sized datasets</strong> (100s to 10,000s)</li>
+                        <li><strong>Binary/multi-class</strong> classification</li>
+                        <li><strong>Interpretability</strong> matters (linear SVM)</li>
+                        <li><strong>Limited training data</strong></li>
+                    </ul>
+                </div>
+
+                <div class="box box-red">
+                    <h3>❌ Don't Use SVM When:</h3>
+                    <ul style="font-size: 1.1em;">
+                        <li><strong>Very large datasets</strong> (millions of samples)</li>
+                        <li><strong>Probability estimates</strong> critical</li>
+                        <li><strong>Highly noisy data</strong></li>
+                        <li><strong>Training time</strong> is critical</li>
+                        <li><strong>Many classes</strong> (100+)</li>
+                        <li><strong>Imbalanced data</strong> (without adjustment)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Best Practices -->
+        <div class="slide">
+            <h2>SVM Best Practices 🌟</h2>
+            
+            <div class="box box-green">
+                <h3>1. Always Scale Your Features! 📊</h3>
+                <p>SVM is very sensitive to feature scales. Use StandardScaler or MinMaxScaler.</p>
+            </div>
+
+            <div class="box box-green">
+                <h3>2. Start with RBF Kernel 🎯</h3>
+                <p>For non-linear problems, RBF is usually the best starting point.</p>
+            </div>
+
+            <div class="box box-green">
+                <h3>3. Use Cross-Validation 🔄</h3>
+                <p>Tune C and γ using grid search with k-fold cross-validation.</p>
+            </div>
+
+            <div class="box box-green">
+                <h3>4. Handle Imbalanced Data ⚖️</h3>
+                <p>Use class_weight='balanced' parameter for imbalanced datasets.</p>
+            </div>
+
+            <div class="box box-green">
+                <h3>5. Try Linear Kernel First for High-D Data 🚀</h3>
+                <p>When features >> samples, linear kernel is often sufficient and much faster.</p>
+            </div>
+        </div>
+
+        <!-- Slide 16: Summary -->
+        <div class="slide">
+            <h2>Key Takeaways 📝</h2>
+            
+            <h3>Core Concepts:</h3>
+            <ul>
+                <li><strong>SVM Goal:</strong> Find maximum-margin hyperplane</li>
+                <li><strong>Hard Margin:</strong> Perfect separation, no violations (rarely used)</li>
+                <li><strong>Soft Margin:</strong> Allow violations controlled by C parameter (standard)</li>
+                <li><strong>Hinge Loss:</strong> Penalizes margin violations linearly</li>
+                <li><strong>Kernel Trick:</strong> Transform data to higher dimensions implicitly</li>
+            </ul>
+
+            <h3>Key Formulas:</h3>
+            <div class="formula">
+                Hard Margin: min ½||w||² s.t. yᵢ(wᵀxᵢ + b) ≥ 1
+            </div>
+            <div class="formula">
+                Soft Margin: min ½||w||² + C·Σξᵢ s.t. yᵢ(wᵀxᵢ + b) ≥ 1 - ξᵢ
+            </div>
+            <div class="formula">
+                Hinge Loss: max(0, 1 - y·f(x))
+            </div>
+            <div class="formula">
+                RBF Kernel: K(xᵢ, xⱼ) = exp(-γ||xᵢ - xⱼ||²)
+            </div>
+        </div>
+
+        <!-- Slide 17: Thank You -->
+        <div class="slide">
+            <h1>Thank You! 🎉</h1>
+            <div class="box" style="text-align: center; font-size: 1.4em; margin-top: 80px;">
+                <h3>You Now Understand:</h3>
+                <ul style="list-style: none;">
+                    <li>✅ Hard vs Soft Margin SVM</li>
+                    <li>✅ Optimization and Loss Functions</li>
+                    <li>✅ The Kernel Trick</li>
+                    <li>✅ Hyperparameter Tuning</li>
+                    <li>✅ When to Use SVM</li>
+                </ul>
+                
+                <h3 style="margin-top: 60px; color: #667eea;">Next Steps:</h3>
+                <p>Practice with the Jupyter notebook provided!</p>
+                <p>Try SVM on your own datasets!</p>
+                <p>Experiment with different kernels and parameters!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-number">
+        <span id="current-slide">1</span> / <span id="total-slides">17</span>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">← Previous</button>
+        <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            // Update button states
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
