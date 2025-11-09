@@ -1,0 +1,126 @@
+
+============================================================
+MAJORITY VOTING PSEUDOCODE
+============================================================
+
+# Majority Voting Pseudocode
+Algorithm: Majority Voting Ensemble
+
+Input: Training set D, Test instance x, Base models M1, M2, ..., Mn
+
+1. FOR each base model Mi:
+   a. Train Mi on dataset D
+   b. Store trained model
+
+2. FOR test instance x:
+   a. predictions = []
+   b. FOR each trained model Mi:
+      i. pred_i = Mi.predict(x)
+      ii. predictions.append(pred_i)
+
+   c. IF classification:
+      final_prediction = mode(predictions)  # Most frequent class
+   d. ELSE IF regression:
+      final_prediction = mean(predictions)  # Average value
+
+3. RETURN final_prediction
+
+
+============================================================
+BAGGING PSEUDOCODE
+============================================================
+
+# Bagging (Bootstrap Aggregation) Pseudocode
+Algorithm: Bootstrap Aggregation
+
+Input: Training set D, Number of models n, Base algorithm A
+
+1. trained_models = []
+
+2. FOR i = 1 to n:
+   a. D_i = bootstrap_sample(D)  # Sample with replacement
+   b. M_i = train_model(A, D_i)
+   c. trained_models.append(M_i)
+
+3. FOR test instance x:
+   a. predictions = []
+   b. FOR each model M_i in trained_models:
+      i. pred_i = M_i.predict(x)
+      ii. predictions.append(pred_i)
+
+   c. IF classification:
+      final_prediction = majority_vote(predictions)
+   d. ELSE IF regression:
+      final_prediction = average(predictions)
+
+4. RETURN final_prediction
+
+
+============================================================
+BOOSTING PSEUDOCODE
+============================================================
+
+# Boosting (AdaBoost) Pseudocode  
+Algorithm: Adaptive Boosting
+
+Input: Training set D = {(x1,y1),...,(xm,ym)}, Number of rounds T
+
+1. Initialize sample weights: w_i = 1/m for all i
+
+2. FOR t = 1 to T:
+   a. Train weak learner h_t using weights w
+   b. Calculate error: ε_t = Σ(w_i * I(h_t(x_i) ≠ y_i))
+   c. IF ε_t > 0.5: BREAK
+
+   d. Calculate model weight: α_t = 0.5 * ln((1-ε_t)/ε_t)
+
+   e. Update sample weights:
+      FOR i = 1 to m:
+         IF h_t(x_i) = y_i:
+            w_i = w_i * exp(-α_t)  # Decrease weight for correct
+         ELSE:
+            w_i = w_i * exp(α_t)   # Increase weight for incorrect
+
+   f. Normalize weights: w_i = w_i / Σ(w_j)
+
+3. FOR test instance x:
+   final_prediction = sign(Σ(α_t * h_t(x)))
+
+4. RETURN final_prediction
+
+
+============================================================
+STACKING PSEUDOCODE
+============================================================
+
+# Stacking Pseudocode
+Algorithm: Stacked Generalization
+
+Input: Training set D, Base models M1,...,Mn, Meta-model Meta
+
+1. TRAINING PHASE:
+   a. Split D into k folds for cross-validation
+   b. level_0_predictions = []
+
+   c. FOR each base model M_i:
+      i. cv_predictions = []
+      ii. FOR each fold j:
+         - Train M_i on (k-1) folds
+         - Predict on fold j
+         - cv_predictions.append(predictions)
+      iii. level_0_predictions.append(cv_predictions)
+
+   d. Create meta-dataset from level_0_predictions
+   e. Train Meta model on meta-dataset
+
+2. PREDICTION PHASE:
+   FOR test instance x:
+   a. base_predictions = []
+   b. FOR each trained base model M_i:
+      i. pred_i = M_i.predict(x)
+      ii. base_predictions.append(pred_i)
+
+   c. final_prediction = Meta.predict(base_predictions)
+
+3. RETURN final_prediction
+

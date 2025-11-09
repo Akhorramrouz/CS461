@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Principal Components Analysis - Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .presentation-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .slide {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px;
+            margin: 0 auto;
+            max-width: 1200px;
+            width: 100%;
+            height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-title {
+            font-size: 42px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 30px;
+            border-bottom: 5px solid #3b82f6;
+            padding-bottom: 15px;
+        }
+
+        .slide-content {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #1f2937;
+        }
+
+        .title-slide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 100%;
+        }
+
+        .title-slide h1 {
+            font-size: 64px;
+            color: #1e3a8a;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .title-slide h2 {
+            font-size: 38px;
+            color: #4b5563;
+            margin-bottom: 60px;
+        }
+
+        .title-slide .info {
+            font-size: 28px;
+            color: #6b7280;
+            margin-top: 40px;
+        }
+
+        .title-slide .university {
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 15px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: white;
+            border-radius: 15px;
+            margin-top: 20px;
+            max-width: 1200px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .nav-button {
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .nav-button:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            color: #9ca3af;
+        }
+
+        .slide-counter {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4b5563;
+        }
+
+        .box {
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .blue-box { background: #dbeafe; border-left: 5px solid #3b82f6; }
+        .green-box { background: #d1fae5; border-left: 5px solid #10b981; }
+        .yellow-box { background: #fef3c7; border-left: 5px solid #f59e0b; }
+        .purple-box { background: #e9d5ff; border-left: 5px solid #a855f7; }
+        .red-box { background: #fee2e2; border-left: 5px solid #ef4444; }
+        .gray-box { background: #f3f4f6; border-left: 5px solid #6b7280; }
+
+        .formula {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            text-align: center;
+            padding: 25px;
+            background: #f9fafb;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #e5e7eb;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        strong {
+            color: #1e40af;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 2px solid #e5e7eb;
+        }
+
+        th {
+            background: #dbeafe;
+            font-weight: bold;
+        }
+
+        .emphasis {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            color: #1e3a8a;
+            margin: 25px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div id="slide-container">
+            <!-- Slides will be generated by JavaScript -->
+        </div>
+
+        <div class="navigation">
+            <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">◄ Previous</button>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">35</span>
+            </div>
+            <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next ►</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = [
+            // Slide 1
+            {
+                type: 'title',
+                content: `
+                    <div class="title-slide">
+                        <h1>Principal Components Analysis</h1>
+                        <h2>A Complete Mathematical Guide</h2>
+                        <div class="info">
+                            <p class="university">Rutgers University</p>
+                            <p>Presented by: Adel Khorramrouz</p>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 2
+            {
+                title: 'What is PCA?',
+                content: `
+                    <p style="font-size: 20px;"><strong>Principal Components Analysis (PCA)</strong> is a technique for:</p>
+                    <ul style="font-size: 18px;">
+                        <li><strong>Simplifying datasets</strong> by reducing dimensionality</li>
+                        <li><strong>Linear transformation</strong> that chooses a new coordinate system</li>
+                        <li>Finding directions of <strong>maximum variance</strong> in data</li>
+                        <li>Revealing <strong>patterns and relationships</strong> in high-dimensional data</li>
+                    </ul>
+                    <div class="blue-box" style="margin-top: 20px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Key Idea:</p>
+                        <p style="font-size: 18px;">Transform data to a new coordinate system where:</p>
+                        <ul style="font-size: 16px;">
+                            <li>Greatest variance lies on the first axis (PC1)</li>
+                            <li>Second greatest variance lies on the second axis (PC2)</li>
+                            <li>And so on...</li>
+                        </ul>
+                    </div>
+                `
+            },
+            // Slide 3
+            {
+                title: 'Why Do We Need PCA?',
+                content: `
+                    <h3 style="font-size: 28px; color: #1e40af; margin-bottom: 15px;">The Dimensionality Challenge</h3>
+                    <ul style="font-size: 20px; line-height: 1.8;">
+                        <li><strong>1D Data:</strong> Plot on a number line ✓</li>
+                        <li><strong>2D Data:</strong> Plot on X-Y graph ✓</li>
+                        <li><strong>3D Data:</strong> Plot in 3D space ✓</li>
+                        <li><strong>4D+ Data:</strong> Cannot visualize directly ✗</li>
+                    </ul>
+                    <div class="yellow-box" style="margin-top: 20px;">
+                        <p style="font-size: 22px; font-weight: bold; margin-bottom: 10px;">PCA Solution:</p>
+                        <p style="font-size: 18px;">Take 4+ dimensional data and create meaningful 2D visualizations that preserve most of the information!</p>
+                    </div>
+                    <p style="margin-top: 20px; font-size: 18px;"><strong>Applications:</strong> Face recognition, image compression, gene expression analysis, pattern finding in high-dimensional data</p>
+                `
+            },
+            // Slide 4
+            {
+                title: 'Foundation: Variance',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 20px;">Variance measures the <strong>spread</strong> of data points around their mean</p>
+                    <div class="formula">
+                        σ² = Σ(x<sub>i</sub> - μ)² / (n-1)
+                        <p style="font-size: 16px; color: #6b7280; margin-top: 10px;">where μ is the mean, n is the number of samples</p>
+                    </div>
+                    <p style="font-size: 20px; font-weight: bold; margin-top: 25px; margin-bottom: 10px;">Interpretation:</p>
+                    <ul style="font-size: 18px;">
+                        <li>High variance = data points spread far from mean</li>
+                        <li>Low variance = data points clustered near mean</li>
+                        <li>Variance is always ≥ 0</li>
+                    </ul>
+                    <div class="blue-box" style="margin-top: 20px;">
+                        <p style="font-size: 18px;"><strong>Example:</strong> Heights of students - variance measures how much heights differ from average height</p>
+                    </div>
+                `
+            },
+            // Slide 5
+            {
+                title: 'Foundation: Covariance',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 20px;">Covariance measures how two dimensions <strong>vary together</strong></p>
+                    <div class="formula">
+                        cov(X,Y) = Σ(X<sub>i</sub> - X̄)(Y<sub>i</sub> - Ȳ) / (n-1)
+                    </div>
+                    <p style="font-size: 22px; font-weight: bold; margin-top: 25px; margin-bottom: 10px;">Interpretation of covariance:</p>
+                    <ul style="font-size: 18px;">
+                        <li><strong>Positive covariance:</strong> Both variables increase together</li>
+                        <li><strong>Negative covariance:</strong> One increases as the other decreases</li>
+                        <li><strong>Zero covariance:</strong> Variables are independent</li>
+                    </ul>
+                    <div class="green-box" style="margin-top: 20px;">
+                        <p style="font-size: 18px;"><strong>Example:</strong> Hours studied vs. exam scores</p>
+                        <p style="font-size: 18px; margin-top: 8px;">Positive covariance: more study time → higher scores</p>
+                    </div>
+                `
+            },
+            // Slide 6
+            {
+                title: 'Covariance: Visual Understanding',
+                content: `
+                    <div class="grid-2">
+                        <div class="green-box" style="border: 3px solid #10b981;">
+                            <h4 style="font-size: 22px; font-weight: bold; color: #065f46; margin-bottom: 10px;">Positive Covariance</h4>
+                            <p style="font-size: 17px;">Data trends upward from lower-left to upper-right</p>
+                            <p style="margin-top: 10px; font-size: 17px;">X increases → Y increases</p>
+                        </div>
+                        <div class="red-box" style="border: 3px solid #ef4444;">
+                            <h4 style="font-size: 22px; font-weight: bold; color: #991b1b; margin-bottom: 10px;">Negative Covariance</h4>
+                            <p style="font-size: 17px;">Data trends downward from upper-left to lower-right</p>
+                            <p style="margin-top: 10px; font-size: 17px;">X increases → Y decreases</p>
+                        </div>
+                    </div>
+                    <div class="blue-box" style="margin-top: 30px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Important Note:</p>
+                        <p style="font-size: 18px;">The <strong>sign</strong> of covariance is more important than its exact value!</p>
+                        <p style="font-size: 18px; margin-top: 8px;">The magnitude depends on the scale of the variables</p>
+                    </div>
+                `
+            },
+            // Slide 7
+            {
+                title: 'Covariance Matrix',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 20px;">For N-dimensional data, covariances form an <strong>N × N matrix</strong></p>
+                    <div class="gray-box">
+                        <p style="font-size: 18px; margin-bottom: 15px;">Example: 3-dimensional data (x, y, z)</p>
+                        <div class="formula">
+                            C = [ cov(x,x)  cov(x,y)  cov(x,z) ]<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;[ cov(y,x)  cov(y,y)  cov(y,z) ]<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;[ cov(z,x)  cov(z,y)  cov(z,z) ]
+                        </div>
+                    </div>
+                    <p style="font-size: 22px; font-weight: bold; margin-top: 25px; margin-bottom: 10px;">Properties:</p>
+                    <ul style="font-size: 18px;">
+                        <li><strong>Diagonal:</strong> Contains variances (cov(x,x) = var(x))</li>
+                        <li><strong>Symmetric:</strong> cov(x,y) = cov(y,x)</li>
+                        <li><strong>Size:</strong> N-dimensional data → N×N matrix</li>
+                        <li><strong>Semi-positive definite:</strong> All eigenvalues ≥ 0</li>
+                    </ul>
+                `
+            },
+            // Slide 8
+            {
+                title: 'Why Calculate Covariance?',
+                content: `
+                    <div class="yellow-box">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">The Challenge:</p>
+                        <p style="font-size: 18px;">For 2D data, we can simply plot it to see relationships</p>
+                        <p style="font-size: 18px; margin-top: 10px;">But what about 10D? 100D? 10,000D data?</p>
+                    </div>
+                    <div class="blue-box" style="margin-top: 25px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">The Solution:</p>
+                        <p style="font-size: 18px;">Covariance calculations reveal relationships between dimensions in <strong>high-dimensional datasets</strong> where visualization is impossible</p>
+                    </div>
+                    <p style="font-size: 20px; font-weight: bold; margin-top: 30px;">Examples:</p>
+                    <ul style="font-size: 18px;">
+                        <li>Gene expression: thousands of genes measured simultaneously</li>
+                        <li>Images: thousands of pixels</li>
+                        <li>Text analysis: thousands of word frequencies</li>
+                    </ul>
+                `
+            },
+            // Slide 9
+            {
+                title: 'PCA: Core Objective',
+                content: `
+                    <div class="emphasis">
+                        Find directions of maximum variance
+                    </div>
+                    <div style="margin-top: 30px; font-size: 18px; line-height: 1.8;">
+                        <p><strong>Step 1:</strong> Find the direction (line through origin) along which data has the <strong>largest variance</strong></p>
+                        <p style="margin-left: 30px;">→ This becomes <strong>Principal Component 1 (PC1)</strong></p>
+                        
+                        <p style="margin-top: 20px;"><strong>Step 2:</strong> Find the direction <strong>perpendicular to PC1</strong> with the next largest variance</p>
+                        <p style="margin-left: 30px;">→ This becomes <strong>Principal Component 2 (PC2)</strong></p>
+                        
+                        <p style="margin-top: 20px;"><strong>Continue:</strong> Keep finding perpendicular directions with decreasing variance</p>
+                        <p style="margin-left: 30px;">→ PC3, PC4, ..., PCn</p>
+                    </div>
+                    <div class="green-box" style="margin-top: 30px;">
+                        <p style="font-size: 18px;"><strong>Result:</strong> New coordinate system where axes are ordered by importance!</p>
+                    </div>
+                `
+            },
+            // Slide 10
+            {
+                title: 'PCA Algorithm: Overview',
+                content: `
+                    <div style="font-size: 18px;">
+                        <div class="blue-box">
+                            <p><strong>Step 1:</strong> Center the data (subtract mean from each dimension)</p>
+                        </div>
+                        <div class="green-box">
+                            <p><strong>Step 2:</strong> Calculate the covariance matrix Q = XX<sup>T</sup></p>
+                        </div>
+                        <div class="yellow-box">
+                            <p><strong>Step 3:</strong> Calculate eigenvalues and eigenvectors of Q</p>
+                        </div>
+                        <div class="purple-box">
+                            <p><strong>Step 4:</strong> Sort eigenvectors by eigenvalues (largest to smallest)</p>
+                        </div>
+                        <div class="red-box">
+                            <p><strong>Step 5:</strong> Select top k eigenvectors (for k-dimensional reduction)</p>
+                        </div>
+                        <div style="background: #e0e7ff; padding: 20px; border-radius: 12px; border-left: 5px solid #6366f1;">
+                            <p><strong>Step 6:</strong> Project data onto selected eigenvectors</p>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        // Add remaining slides (11-35)
+        
+        slides.push(
+            // Slide 11
+            {
+                title: 'Step 1: Mean Centering',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 20px;">First, we must <strong>center the data</strong> by subtracting the mean</p>
+                    <div class="gray-box">
+                        <p style="font-size: 18px; margin-bottom: 12px;">Calculate mean vector:</p>
+                        <div class="formula">x̄ = (1/n) Σ x<sub>i</sub></div>
+                        <p style="font-size: 18px; margin-top: 25px; margin-bottom: 12px;">Create centered data matrix X:</p>
+                        <div class="formula">X = [x₁-x̄  x₂-x̄  ...  x<sub>n</sub>-x̄]</div>
+                    </div>
+                    <p style="font-size: 22px; font-weight: bold; margin-top: 30px; margin-bottom: 10px;">Why center the data?</p>
+                    <ul style="font-size: 18px;">
+                        <li>Translates coordinate system to data's center</li>
+                        <li>Essential for finding principal components through origin</li>
+                        <li>Removes location bias, focuses on variation</li>
+                        <li>Relative positions of points remain unchanged</li>
+                    </ul>
+                `
+            },
+            // Slide 12
+            {
+                title: 'Finding PC1: The Intuitive Approach',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">How do we find the "best fitting line"?</p>
+                    <div style="font-size: 18px;">
+                        <div class="blue-box">
+                            <p style="font-weight: bold; color: #1e40af; margin-bottom: 12px; font-size: 20px;">Approach 1: Minimize distances to line</p>
+                            <p>Minimize Σ (distance from point to line)²</p>
+                        </div>
+                        <div class="green-box">
+                            <p style="font-weight: bold; color: #065f46; margin-bottom: 12px; font-size: 20px;">Approach 2: Maximize projection distances</p>
+                            <p>Maximize Σ (distance from projected point to origin)²</p>
+                        </div>
+                    </div>
+                    <div class="yellow-box" style="margin-top: 30px;">
+                        <p style="font-size: 22px; font-weight: bold; margin-bottom: 12px;">These are equivalent!</p>
+                        <p style="font-size: 18px;">By Pythagorean theorem: if distance to origin is fixed, minimizing distance to line = maximizing projection distance</p>
+                    </div>
+                    <p style="font-size: 18px; margin-top: 25px;"><strong>PCA uses Approach 2</strong> (easier to calculate)</p>
+                `
+            },
+            // Slide 13
+            {
+                title: 'Mathematical Equivalence',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">Why are these two approaches equivalent?</p>
+                    <div class="gray-box">
+                        <p style="font-size: 18px; margin-bottom: 15px;">For any point, consider:</p>
+                        <ul style="font-size: 18px;">
+                            <li><strong>A</strong> = distance from point to origin (constant)</li>
+                            <li><strong>B</strong> = distance from point to line</li>
+                            <li><strong>C</strong> = distance from projected point to origin</li>
+                        </ul>
+                        <div class="formula" style="margin-top: 25px;">
+                            A² = B² + C²
+                            <p style="font-size: 16px; margin-top: 12px;">(Pythagorean theorem with right angle at projection)</p>
+                        </div>
+                    </div>
+                    <div class="blue-box" style="margin-top: 30px;">
+                        <p style="font-size: 22px; font-weight: bold; margin-bottom: 12px;">Key Insight:</p>
+                        <p style="font-size: 18px;">Since A² is constant:</p>
+                        <ul style="font-size: 18px; margin-top: 12px;">
+                            <li>If B increases → C must decrease</li>
+                            <li>If C increases → B must decrease</li>
+                        </ul>
+                        <p style="font-size: 20px; margin-top: 15px; font-weight: bold;">Therefore: Maximizing C = Minimizing B</p>
+                    </div>
+                `
+            },
+            // Slide 14
+            {
+                title: 'Finding PC1: The Calculation',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">PC1 maximizes the sum of squared distances from projected points to origin</p>
+                    <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">For each candidate line:</p>
+                    <ol style="font-size: 18px; line-height: 1.8; margin-left: 30px;">
+                        <li>Project all data points onto the line</li>
+                        <li>Measure distance from each projected point to origin (d₁, d₂, ..., d<sub>n</sub>)</li>
+                        <li>Square all distances: d₁², d₂², ..., d<sub>n</sub>²</li>
+                        <li>Sum them up: SS = Σ d<sub>i</sub>²</li>
+                    </ol>
+                    <div class="green-box" style="margin-top: 30px;">
+                        <p style="font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 15px;">PC1 is the line with maximum SS</p>
+                        <p style="font-size: 18px; text-align: center;">This line captures the most variance in the data</p>
+                    </div>
+                    <p style="font-size: 18px; margin-top: 25px;"><strong>Note:</strong> We square distances so negative values don't cancel positive values</p>
+                `
+            },
+            // Slide 15
+            {
+                title: 'PCA Theorem',
+                content: `
+                    <div class="blue-box">
+                        <p style="font-size: 18px; margin-bottom: 8px;"><strong>Let</strong> x₁, x₂, ..., x<sub>n</sub> be n vectors (N×1 each)</p>
+                        <p style="font-size: 18px; margin-bottom: 8px;"><strong>Let</strong> X be the matrix with columns (x<sub>i</sub> - x̄)</p>
+                        <p style="font-size: 18px;"><strong>Let</strong> Q = XX<sup>T</sup> (the covariance matrix, N×N)</p>
+                    </div>
+                    <div class="gray-box" style="margin-top: 25px;">
+                        <p style="font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 20px;">Theorem:</p>
+                        <div class="formula">
+                            x<sub>j</sub> = x̄ + Σ g<sub>ji</sub>e<sub>i</sub>
+                            <p style="font-size: 16px; margin-top: 12px;">where e<sub>i</sub> are eigenvectors of Q with non-zero eigenvalues</p>
+                        </div>
+                    </div>
+                    <p style="font-size: 20px; font-weight: bold; margin-top: 25px;">Key points:</p>
+                    <ul style="font-size: 18px;">
+                        <li>e₁, e₂, ..., e<sub>n</sub> span an eigenspace</li>
+                        <li>They are N×1 orthonormal vectors</li>
+                        <li>g<sub>ji</sub> = (x<sub>j</sub> - x̄)·e<sub>i</sub> are the coordinates in new space</li>
+                    </ul>
+                `
+            },
+            // Slide 16
+            {
+                title: 'Linear Combinations and Loading Scores',
+                content: `
+                    <div class="yellow-box">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">PC1 is a "cocktail recipe" of original variables</p>
+                        <p style="font-size: 18px;"><strong>Example:</strong> PC1 = 0.97 × Gene1 + 0.242 × Gene2</p>
+                    </div>
+                    <div style="margin-top: 30px;">
+                        <p style="font-size: 24px; font-weight: bold; margin-bottom: 15px;">🔔 Terminology Alert! 🔔</p>
+                        <ul style="font-size: 18px; line-height: 1.8;">
+                            <li><strong>Linear Combination:</strong> Weighted sum of original variables</li>
+                            <li><strong>Loading Scores:</strong> The weights/coefficients in the combination</li>
+                            <li><strong>Unit Vector:</strong> Direction vector scaled to length 1</li>
+                        </ul>
+                    </div>
+                    <div class="blue-box" style="margin-top: 30px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Interpretation:</p>
+                        <p style="font-size: 18px;">If Gene1 coefficient is 4× larger than Gene2 coefficient:</p>
+                        <p style="font-size: 18px; margin-top: 8px;">→ Gene1 is 4× more important for PC1</p>
+                        <p style="font-size: 18px;">→ Data spreads more along Gene1 axis</p>
+                    </div>
+                `
+            },
+            // Slide 17
+            {
+                title: 'Terminology: Eigenvectors & Eigenvalues',
+                content: `
+                    <div class="purple-box" style="margin-bottom: 30px;">
+                        <p style="font-size: 28px; font-weight: bold; text-align: center;">🔔 Terminology Alert! 🔔</p>
+                    </div>
+                    <div style="font-size: 18px;">
+                        <div class="blue-box">
+                            <p style="font-weight: bold; font-size: 22px; margin-bottom: 8px;">Eigenvector / Singular Vector:</p>
+                            <p>The unit-length direction vector for a principal component</p>
+                            <p style="margin-top: 8px; color: #4b5563;">Contains the loading scores (recipe coefficients)</p>
+                        </div>
+                        <div class="green-box">
+                            <p style="font-weight: bold; font-size: 22px; margin-bottom: 8px;">Eigenvalue:</p>
+                            <p>The average sum of squared distances for a PC</p>
+                            <p style="margin-top: 8px; color: #4b5563;">Measures the variance captured by that PC</p>
+                        </div>
+                        <div class="yellow-box">
+                            <p style="font-weight: bold; font-size: 22px; margin-bottom: 8px;">Singular Value:</p>
+                            <p>The square root of the sum of squared distances</p>
+                            <p style="margin-top: 8px; color: #4b5563;">√(eigenvalue × n)</p>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 18
+            {
+                title: 'Finding PC2',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">Once PC1 is found, we find PC2...</p>
+                    <div class="emphasis">
+                        PC2 must be perpendicular to PC1
+                    </div>
+                    <div style="margin-top: 30px; font-size: 18px;">
+                        <p style="font-weight: bold; font-size: 20px; margin-bottom: 12px;">For 2D data:</p>
+                        <ul>
+                            <li>PC2 is simply the line perpendicular to PC1 through origin</li>
+                            <li>No further optimization needed!</li>
+                        </ul>
+                        <p style="font-weight: bold; font-size: 20px; margin-top: 25px; margin-bottom: 12px;">For 3D+ data:</p>
+                        <ul>
+                            <li>PC2 must be perpendicular to PC1</li>
+                            <li>Among all perpendicular directions, choose the one with maximum variance</li>
+                        </ul>
+                    </div>
+                    <div class="green-box" style="margin-top: 30px;">
+                        <p style="font-size: 18px;"><strong>Example:</strong> If PC1 = 0.97×Gene1 + 0.242×Gene2</p>
+                        <p style="font-size: 18px; margin-top: 12px;">Then PC2 = -0.242×Gene1 + 0.97×Gene2</p>
+                        <p style="font-size: 16px; margin-top: 12px; color: #4b5563;">(Note the perpendicular relationship)</p>
+                    </div>
+                `
+            },
+            // Slide 19
+            {
+                title: 'Finding All Principal Components',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">Continue finding perpendicular directions with decreasing variance</p>
+                    <div style="font-size: 18px;">
+                        <div class="blue-box">
+                            <p><strong>PC1:</strong> Direction of maximum variance</p>
+                        </div>
+                        <div class="green-box">
+                            <p><strong>PC2:</strong> Direction of maximum variance perpendicular to PC1</p>
+                        </div>
+                        <div class="yellow-box">
+                            <p><strong>PC3:</strong> Direction of maximum variance perpendicular to PC1 and PC2</p>
+                        </div>
+                        <div class="purple-box">
+                            <p><strong>And so on...</strong></p>
+                        </div>
+                    </div>
+                    <div class="red-box" style="margin-top: 30px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">How many PCs are there?</p>
+                        <p style="font-size: 18px;">Number of PCs = min(number of variables, number of samples)</p>
+                        <p style="font-size: 18px; margin-top: 12px;">But usually we only keep the first few PCs!</p>
+                    </div>
+                `
+            },
+            // Slide 20
+            {
+                title: 'The Covariance Matrix Q',
+                content: `
+                    <div class="formula">
+                        Q = XX<sup>T</sup>
+                        <p style="font-size: 16px; margin-top: 12px;">where X = [x₁-x̄  x₂-x̄  ...  x<sub>n</sub>-x̄]</p>
+                    </div>
+                    <p style="font-size: 22px; font-weight: bold; margin-top: 30px; margin-bottom: 12px;">Properties of Q:</p>
+                    <ul style="font-size: 18px;">
+                        <li><strong>Square:</strong> N × N matrix (N = number of dimensions)</li>
+                        <li><strong>Symmetric:</strong> Q = Q<sup>T</sup></li>
+                        <li><strong>Contains all covariances</strong> between dimensions</li>
+                        <li><strong>Can be very large!</strong> For 256×256 image: N = 65,536</li>
+                    </ul>
+                    <div class="yellow-box" style="margin-top: 30px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">⚠️ Important:</p>
+                        <p style="font-size: 18px;">Don't explicitly compute Q for large N!</p>
+                        <p style="font-size: 18px; margin-top: 8px;">Use SVD (Singular Value Decomposition) instead</p>
+                    </div>
+                `
+            },
+            // Slide 21
+            {
+                title: 'Using PCA for Dimensionality Reduction',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">Sort eigenvectors by eigenvalues (largest to smallest)</p>
+                    <div class="formula">λ₁ ≥ λ₂ ≥ λ₃ ≥ ... ≥ λ<sub>n</sub></div>
+                    <p style="font-size: 22px; font-weight: bold; margin-top: 30px; margin-bottom: 12px;">If many eigenvalues ≈ 0 for i > k:</p>
+                    <div class="blue-box">
+                        <p style="font-size: 18px; margin-bottom: 12px;">Then the data lies in a k-dimensional subspace!</p>
+                        <div class="formula">x<sub>j</sub> ≈ x̄ + Σ(i=1 to k) g<sub>ji</sub>e<sub>i</sub></div>
+                    </div>
+                    <div class="green-box" style="margin-top: 30px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Compression Strategy:</p>
+                        <p style="font-size: 18px;">Store: x̄ (mean) + e₁, e₂, ..., e<sub>k</sub> (k eigenvectors) + coordinates g<sub>ji</sub></p>
+                        <p style="font-size: 18px; margin-top: 12px;">Instead of storing all N dimensions for each point!</p>
+                    </div>
+                `
+            },
+            // Slide 22
+            {
+                title: 'PCA Toy Example: Setup',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">Consider these 3D points (6 samples, 3 dimensions):</p>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; font-size: 17px; font-family: monospace; margin-bottom: 25px;">
+                        <div class="blue-box">[1, 2, 3]</div>
+                        <div class="blue-box">[2, 4, 6]</div>
+                        <div class="blue-box">[3, 6, 9]</div>
+                        <div class="green-box">[4, 8, 12]</div>
+                        <div class="green-box">[5, 10, 15]</div>
+                        <div class="green-box">[6, 12, 18]</div>
+                    </div>
+                    <div class="yellow-box">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Storage without PCA:</p>
+                        <p style="font-size: 18px;">6 points × 3 dimensions × 1 byte = <strong>18 bytes</strong></p>
+                    </div>
+                    <div class="purple-box" style="margin-top: 25px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Key Observation:</p>
+                        <p style="font-size: 18px;">All points are scalar multiples of [1, 2, 3]!</p>
+                        <p style="font-size: 18px; margin-top: 8px;">They all lie on the same line through the origin</p>
+                    </div>
+                `
+            },
+            // Slide 23
+            {
+                title: 'PCA Toy Example: Result',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">All points lie on a 1D line in 3D space:</p>
+                    <div class="blue-box">
+                        <p style="font-size: 18px; text-align: center; margin-bottom: 15px;">Point = scalar × [1, 2, 3]</p>
+                        <div style="font-size: 17px; line-height: 1.6;">
+                            <p>[1,2,3] = 1 × [1,2,3]</p>
+                            <p>[2,4,6] = 2 × [1,2,3]</p>
+                            <p>[3,6,9] = 3 × [1,2,3]</p>
+                            <p>[4,8,12] = 4 × [1,2,3]</p>
+                            <p>[5,10,15] = 5 × [1,2,3]</p>
+                            <p>[6,12,18] = 6 × [1,2,3]</p>
+                        </div>
+                    </div>
+                    <div class="green-box" style="margin-top: 30px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Storage with PCA:</p>
+                        <p style="font-size: 18px;">Direction vector [1,2,3]: <strong>3 bytes</strong></p>
+                        <p style="font-size: 18px;">Scalars [1,2,3,4,5,6]: <strong>6 bytes</strong></p>
+                        <p style="font-size: 20px; margin-top: 12px; font-weight: bold;">Total: <strong>9 bytes</strong> (50% savings!)</p>
+                    </div>
+                `
+            },
+            // Slide 24
+            {
+                title: 'Complete PCA Example: Step 1 - Data',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">2D Dataset (10 samples):</p>
+                    <div class="grid-2">
+                        <table>
+                            <thead><tr><th>x</th><th>y</th></tr></thead>
+                            <tbody>
+                                <tr><td>2.5</td><td>2.4</td></tr>
+                                <tr><td>0.5</td><td>0.7</td></tr>
+                                <tr><td>2.2</td><td>2.9</td></tr>
+                                <tr><td>1.9</td><td>2.2</td></tr>
+                                <tr><td>3.1</td><td>3.0</td></tr>
+                            </tbody>
+                        </table>
+                        <table>
+                            <thead><tr><th>x</th><th>y</th></tr></thead>
+                            <tbody>
+                                <tr><td>2.3</td><td>2.7</td></tr>
+                                <tr><td>2.0</td><td>1.6</td></tr>
+                                <tr><td>1.0</td><td>1.1</td></tr>
+                                <tr><td>1.5</td><td>1.6</td></tr>
+                                <tr><td>1.1</td><td>0.9</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="yellow-box" style="margin-top: 30px;">
+                        <p style="font-size: 18px;"><strong>Calculate means:</strong></p>
+                        <p style="font-size: 18px; margin-top: 12px;">x̄ = 1.81, ȳ = 1.91</p>
+                        <p style="font-size: 18px; margin-top: 8px;">This becomes the new origin!</p>
+                    </div>
+                `
+            },
+            // Slide 25
+            {
+                title: 'Complete PCA Example: Step 2 - Covariance',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">After centering data, calculate covariance matrix:</p>
+                    <div class="formula">
+                        C = [ 0.6166  0.6154 ]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;[ 0.6154  0.7166 ]
+                    </div>
+                    <p style="font-size: 22px; font-weight: bold; margin-top: 30px; margin-bottom: 12px;">Interpretation:</p>
+                    <ul style="font-size: 18px;">
+                        <li><strong>Diagonal elements:</strong> variances of x and y</li>
+                        <li>var(x) = 0.6166, var(y) = 0.7166</li>
+                        <li><strong>Off-diagonal:</strong> cov(x,y) = 0.6154</li>
+                        <li><strong>Positive covariance:</strong> x and y increase together</li>
+                    </ul>
+                    <div class="blue-box" style="margin-top: 30px;">
+                        <p style="font-size: 18px;"><strong>Note:</strong> Matrix is symmetric (as expected)</p>
+                        <p style="font-size: 18px; margin-top: 8px;">cov(x,y) = cov(y,x) = 0.6154</p>
+                    </div>
+                `
+            },
+            // Slide 26
+            {
+                title: 'Complete PCA Example: Step 3 - Eigendecomposition',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">Calculate eigenvalues and eigenvectors of covariance matrix:</p>
+                    <div class="grid-2">
+                        <div class="blue-box">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Eigenvalues:</p>
+                            <p style="font-size: 22px; font-family: monospace;">λ₁ = 1.2840</p>
+                            <p style="font-size: 22px; font-family: monospace; margin-top: 8px;">λ₂ = 0.0491</p>
+                        </div>
+                        <div class="green-box">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Eigenvectors:</p>
+                            <p style="font-size: 17px; font-family: monospace;">e₁ = [-0.6779, -0.7352]</p>
+                            <p style="font-size: 17px; font-family: monospace; margin-top: 12px;">e₂ = [0.7352, -0.6779]</p>
+                        </div>
+                    </div>
+                    <p style="font-size: 20px; font-weight: bold; margin-top: 30px; margin-bottom: 12px;">Key Observations:</p>
+                    <ul style="font-size: 18px;">
+                        <li>λ₁ >> λ₂ (first eigenvalue much larger)</li>
+                        <li>PC1 captures most of the variance</li>
+                        <li>Eigenvectors are perpendicular (orthogonal)</li>
+                        <li>Both eigenvectors have unit length</li>
+                    </ul>
+                `
+            },
+            // Slide 27
+            {
+                title: 'Complete PCA Example: Step 4 - Feature Vector',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">Form the feature vector from eigenvectors:</p>
+                    <div class="gray-box">
+                        <p style="font-size: 18px; margin-bottom: 12px;"><strong>Option 1:</strong> Keep both PCs (no reduction)</p>
+                        <div class="formula">FeatureVector = [e₁  e₂]</div>
+                    </div>
+                    <div class="green-box" style="margin-top: 25px;">
+                        <p style="font-size: 18px; margin-bottom: 12px;"><strong>Option 2:</strong> Keep only PC1 (dimensionality reduction)</p>
+                        <div class="formula">FeatureVector = [e₁]</div>
+                        <p style="font-size: 18px; text-align: center; margin-top: 12px;">Reduces from 2D → 1D</p>
+                    </div>
+                    <div class="yellow-box" style="margin-top: 30px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Decision Criteria:</p>
+                        <p style="font-size: 18px;">If λ₂ is very small relative to λ₁:</p>
+                        <p style="font-size: 18px; margin-top: 8px;">→ PC2 explains little variance</p>
+                        <p style="font-size: 18px;">→ Can safely drop PC2</p>
+                        <p style="font-size: 18px;">→ Keep only PC1 with minimal information loss</p>
+                    </div>
+                `
+            },
+            // Slide 28
+            {
+                title: 'Complete PCA Example: Step 5 - Transform Data',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">Project data onto principal components:</p>
+                    <div class="formula">
+                        FinalData = FeatureVector<sup>T</sup> × DataAdjust<sup>T</sup>
+                        <p style="font-size: 16px; margin-top: 12px; color: #4b5563;">This rotates the coordinate system!</p>
+                    </div>
+                    <p style="font-size: 22px; font-weight: bold; margin-top: 30px; margin-bottom: 12px;">What this does:</p>
+                    <ul style="font-size: 18px;">
+                        <li><strong>FeatureVector<sup>T</sup>:</strong> Eigenvectors in rows (transposed)</li>
+                        <li><strong>DataAdjust<sup>T</sup>:</strong> Mean-centered data in columns</li>
+                        <li><strong>Result:</strong> Coordinates in new PC space</li>
+                    </ul>
+                    <div class="blue-box" style="margin-top: 30px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Geometric Interpretation:</p>
+                        <p style="font-size: 18px;">Rotate axes so PC1 is horizontal and PC2 is vertical</p>
+                        <p style="font-size: 18px; margin-top: 8px;">Data points maintain relative positions</p>
+                        <p style="font-size: 18px;">But now variance is maximized along first axis!</p>
+                    </div>
+                `
+            },
+            // Slide 29
+            {
+                title: 'Variance Explained & Scree Plot',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">How much variance does each PC explain?</p>
+                    <div class="gray-box">
+                        <p style="font-size: 18px; margin-bottom: 12px;">Eigenvalues measure variance along each PC:</p>
+                        <div class="formula">
+                            Total Variance = λ₁ + λ₂ + ... + λ<sub>n</sub><br><br>
+                            % Variance for PC<sub>i</sub> = λ<sub>i</sub> / Total × 100%
+                        </div>
+                    </div>
+                    <div class="blue-box" style="margin-top: 25px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Example:</p>
+                        <p style="font-size: 18px;">λ₁ = 1.284, λ₂ = 0.049, Total = 1.333</p>
+                        <p style="font-size: 18px; margin-top: 12px;">PC1: 1.284/1.333 = <strong>96.3%</strong> of variance</p>
+                        <p style="font-size: 18px;">PC2: 0.049/1.333 = <strong>3.7%</strong> of variance</p>
+                    </div>
+                    <div class="green-box" style="margin-top: 25px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Scree Plot:</p>
+                        <p style="font-size: 18px;">Bar chart showing % variance for each PC</p>
+                        <p style="font-size: 18px; margin-top: 8px;">Helps decide how many PCs to keep</p>
+                        <p style="font-size: 18px;">Look for "elbow" where variance drops sharply</p>
+                    </div>
+                `
+            },
+            // Slide 30
+            {
+                title: 'Singular Value Decomposition (SVD)',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">Practical PCA implementation uses SVD instead of eigendecomposition:</p>
+                    <div class="formula">
+                        X = UDV<sup>T</sup>
+                    </div>
+                    <div class="gray-box" style="margin-top: 25px;">
+                        <p style="font-size: 18px; margin-bottom: 12px;"><strong>where:</strong></p>
+                        <ul style="font-size: 17px;">
+                            <li><strong>U:</strong> m×m matrix, columns are eigenvectors of XX<sup>T</sup></li>
+                            <li><strong>D:</strong> m×n diagonal matrix, singular values</li>
+                            <li><strong>V:</strong> n×n matrix, columns are eigenvectors of X<sup>T</sup>X</li>
+                        </ul>
+                    </div>
+                    <p style="font-size: 22px; font-weight: bold; margin-top: 30px; margin-bottom: 12px;">Why use SVD?</p>
+                    <ul style="font-size: 18px;">
+                        <li>More numerically stable than computing Q = XX<sup>T</sup></li>
+                        <li>Avoids explicitly forming large covariance matrix</li>
+                        <li>Columns of U are the principal components</li>
+                        <li>Diagonal of D² gives eigenvalues</li>
+                    </ul>
+                `
+            },
+            // Slide 31
+            {
+                title: 'Alternative View: Maximizing Variance',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">PC1 is the direction that maximizes projected variance</p>
+                    <div class="blue-box">
+                        <p style="font-size: 18px; margin-bottom: 12px;">For a unit vector <strong>w</strong>, the variance of projections is:</p>
+                        <div class="formula">Var = w<sup>T</sup>Cw</div>
+                        <p style="font-size: 16px; text-align: center; margin-top: 12px;">where C is the covariance matrix</p>
+                    </div>
+                    <div class="gray-box" style="margin-top: 30px;">
+                        <p style="font-size: 18px; margin-bottom: 12px;">PCA finds:</p>
+                        <div class="formula">
+                            w* = argmax w<sup>T</sup>Cw<br>
+                            <p style="font-size: 16px; margin-top: 12px;">subject to ||w|| = 1</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 30px; font-size: 18px;">
+                        <p><strong>Solution:</strong> w* is the principal eigenvector of C</p>
+                        <p style="margin-top: 12px;"><strong>Maximum variance:</strong> λ<sub>max</sub> = w*<sup>T</sup>Cw*</p>
+                    </div>
+                `
+            },
+            // Slide 32
+            {
+                title: 'PCA for 3D Data',
+                content: `
+                    <p style="font-size: 20px; margin-bottom: 25px;">Extension to 3D (or higher dimensions):</p>
+                    <div style="font-size: 18px;">
+                        <div class="blue-box">
+                            <p><strong>Step 1:</strong> Center the 3D data</p>
+                        </div>
+                        <div class="green-box">
+                            <p><strong>Step 2:</strong> Find PC1 - best fitting line through origin</p>
+                            <p style="color: #4b5563; margin-top: 8px;">Recipe has 3 ingredients (x, y, z coefficients)</p>
+                        </div>
+                        <div class="yellow-box">
+                            <p><strong>Step 3:</strong> Find PC2 - perpendicular to PC1, maximum variance</p>
+                        </div>
+                        <div class="purple-box">
+                            <p><strong>Step 4:</strong> Find PC3 - perpendicular to PC1 and PC2</p>
+                        </div>
+                    </div>
+                    <div class="red-box" style="margin-top: 30px;">
+                        <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Dimensionality Reduction:</p>
+                        <p style="font-size: 18px;">If PC1 and PC2 explain 94% of variance</p>
+                        <p style="font-size: 18px; margin-top: 8px;">→ Can use 2D plot instead of 3D with minimal loss!</p>
+                    </div>
+                `
+            },
+            // Slide 33
+            {
+                title: 'Practical Considerations',
+                content: `
+                    <div style="font-size: 18px;">
+                        <div class="blue-box">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">How many PCs to keep?</p>
+                            <ul style="margin-left: 20px;">
+                                <li>Look at scree plot for "elbow"</li>
+                                <li>Keep PCs explaining 90-95% of variance</li>
+                                <li>Domain knowledge may guide choice</li>
+                            </ul>
+                        </div>
+                        <div class="green-box">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Data Scaling:</p>
+                            <ul style="margin-left: 20px;">
+                                <li>Variables with large scales dominate PCs</li>
+                                <li>Often standardize: (x - μ)/σ for each variable</li>
+                                <li>Makes all variables comparable</li>
+                            </ul>
+                        </div>
+                        <div class="yellow-box">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 12px;">Interpretation:</p>
+                            <ul style="margin-left: 20px;">
+                                <li>Loading scores show variable importance</li>
+                                <li>PC plots reveal clusters and outliers</li>
+                                <li>Original variables in terms of PCs can be complex</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 34
+            {
+                title: 'Applications of PCA',
+                content: `
+                    <div class="grid-2">
+                        <div class="blue-box">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Face Recognition</p>
+                            <p style="font-size: 17px;">Eigenfaces: represent faces as combinations of principal components</p>
+                        </div>
+                        <div class="green-box">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Image Compression</p>
+                            <p style="font-size: 17px;">Store images using fewer principal components</p>
+                        </div>
+                        <div class="yellow-box">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Gene Expression</p>
+                            <p style="font-size: 17px;">Analyze thousands of genes, identify key patterns</p>
+                        </div>
+                        <div class="purple-box">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Recommendation Systems</p>
+                            <p style="font-size: 17px;">Reduce dimensionality of user-item matrices</p>
+                        </div>
+                        <div class="red-box">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Finance</p>
+                            <p style="font-size: 17px;">Portfolio analysis, risk factor identification</p>
+                        </div>
+                        <div style="background: #e0e7ff; padding: 20px; border-radius: 12px; border-left: 5px solid #6366f1;">
+                            <p style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Data Visualization</p>
+                            <p style="font-size: 17px;">Plot high-dimensional data in 2D/3D</p>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 35
+            {
+                title: 'Summary: Key Takeaways',
+                content: `
+                    <div style="font-size: 18px;">
+                        <div class="blue-box">
+                            <p><strong>1.</strong> PCA finds directions of maximum variance in data</p>
+                        </div>
+                        <div class="green-box">
+                            <p><strong>2.</strong> Principal components are eigenvectors of covariance matrix</p>
+                        </div>
+                        <div class="yellow-box">
+                            <p><strong>3.</strong> Eigenvalues indicate importance of each PC</p>
+                        </div>
+                        <div class="purple-box">
+                            <p><strong>4.</strong> PCs are orthogonal (perpendicular) to each other</p>
+                        </div>
+                        <div class="red-box">
+                            <p><strong>5.</strong> Can reduce dimensionality by keeping top k PCs</p>
+                        </div>
+                        <div style="background: #e0e7ff; padding: 20px; border-radius: 12px; border-left: 5px solid #6366f1;">
+                            <p><strong>6.</strong> SVD provides stable implementation</p>
+                        </div>
+                        <div style="background: #fce7f3; padding: 20px; border-radius: 12px; border-left: 5px solid #ec4899; margin-top: 10px;">
+                            <p><strong>7.</strong> Loading scores show how variables contribute to PCs</p>
+                        </div>
+                    </div>
+                    <div class="gray-box" style="margin-top: 30px; text-align: center;">
+                        <p style="font-size: 24px; font-weight: bold; color: #1e3a8a;">PCA: Simplify high-dimensional data while preserving information!</p>
+                    </div>
+                `
+            }
+        );
+
+        function renderSlides() {
+            const container = document.getElementById('slide-container');
+            container.innerHTML = '';
+            
+            slides.forEach((slide, index) => {
+                const slideDiv = document.createElement('div');
+                slideDiv.className = 'slide';
+                if (index === 0) slideDiv.classList.add('active');
+                
+                if (slide.type === 'title') {
+                    slideDiv.innerHTML = slide.content;
+                } else {
+                    slideDiv.innerHTML = `
+                        <h2 class="slide-title">${slide.title}</h2>
+                        <div class="slide-content">${slide.content}</div>
+                    `;
+                }
+                
+                container.appendChild(slideDiv);
+            });
+            
+            document.getElementById('totalSlides').textContent = slides.length;
+        }
+
+        function showSlide(n) {
+            const slideElements = document.querySelectorAll('.slide');
+            
+            if (n >= slides.length) currentSlide = slides.length - 1;
+            if (n < 0) currentSlide = 0;
+            
+            slideElements.forEach(slide => slide.classList.remove('active'));
+            slideElements[currentSlide].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === slides.length - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'Home') { currentSlide = 0; showSlide(0); }
+            if (e.key === 'End') { currentSlide = slides.length - 1; showSlide(currentSlide); }
+        });
+
+        // Initialize
+        renderSlides();
+        showSlide(0);
+    </script>
+</body>
+</html>

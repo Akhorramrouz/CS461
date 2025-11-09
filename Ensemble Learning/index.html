@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ensemble Learning in Machine Learning</title>
+    <style>
+        :root {
+  --color-white: rgba(255, 255, 255, 1);
+  --color-black: rgba(0, 0, 0, 1);
+  --color-cream-50: rgba(252, 252, 249, 1);
+  --color-cream-100: rgba(255, 255, 253, 1);
+  --color-gray-200: rgba(245, 245, 245, 1);
+  --color-gray-300: rgba(167, 169, 169, 1);
+  --color-gray-400: rgba(119, 124, 124, 1);
+  --color-slate-500: rgba(98, 108, 113, 1);
+  --color-brown-600: rgba(94, 82, 64, 1);
+  --color-charcoal-700: rgba(31, 33, 33, 1);
+  --color-charcoal-800: rgba(38, 40, 40, 1);
+  --color-slate-900: rgba(19, 52, 59, 1);
+  --color-teal-300: rgba(50, 184, 198, 1);
+  --color-teal-400: rgba(45, 166, 178, 1);
+  --color-teal-500: rgba(33, 128, 141, 1);
+  --color-teal-600: rgba(29, 116, 128, 1);
+  --color-teal-700: rgba(26, 104, 115, 1);
+  --color-teal-800: rgba(41, 150, 161, 1);
+  --color-red-400: rgba(255, 84, 89, 1);
+  --color-red-500: rgba(192, 21, 47, 1);
+  --color-orange-400: rgba(230, 129, 97, 1);
+  --color-orange-500: rgba(168, 75, 47, 1);
+
+  --color-brown-600-rgb: 94, 82, 64;
+  --color-teal-500-rgb: 33, 128, 141;
+  --color-slate-900-rgb: 19, 52, 59;
+  --color-slate-500-rgb: 98, 108, 113;
+  --color-red-500-rgb: 192, 21, 47;
+  --color-red-400-rgb: 255, 84, 89;
+  --color-orange-500-rgb: 168, 75, 47;
+  --color-orange-400-rgb: 230, 129, 97;
+
+  --color-bg-1: rgba(59, 130, 246, 0.08);
+  --color-bg-2: rgba(245, 158, 11, 0.08);
+  --color-bg-3: rgba(34, 197, 94, 0.08);
+  --color-bg-4: rgba(239, 68, 68, 0.08);
+  --color-bg-5: rgba(147, 51, 234, 0.08);
+  --color-bg-6: rgba(249, 115, 22, 0.08);
+  --color-bg-7: rgba(236, 72, 153, 0.08);
+  --color-bg-8: rgba(6, 182, 212, 0.08);
+
+  --color-background: var(--color-cream-50);
+  --color-surface: var(--color-cream-100);
+  --color-text: var(--color-slate-900);
+  --color-text-secondary: var(--color-slate-500);
+  --color-primary: var(--color-teal-500);
+  --color-primary-hover: var(--color-teal-600);
+  --color-primary-active: var(--color-teal-700);
+  --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+  --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-btn-primary-text: var(--color-cream-50);
+  --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-error: var(--color-red-500);
+  --color-success: var(--color-teal-500);
+  --color-warning: var(--color-orange-500);
+  --color-info: var(--color-slate-500);
+  --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+  --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
+
+  --focus-ring: 0 0 0 3px var(--color-focus-ring);
+  --focus-outline: 2px solid var(--color-primary);
+  --status-bg-opacity: 0.15;
+  --status-border-opacity: 0.25;
+
+  --color-success-rgb: 33, 128, 141;
+  --color-error-rgb: 192, 21, 47;
+  --color-warning-rgb: 168, 75, 47;
+  --color-info-rgb: 98, 108, 113;
+
+  --font-family-base: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 30px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 550;
+  --font-weight-bold: 600;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --letter-spacing-tight: -0.01em;
+
+  --space-0: 0;
+  --space-1: 1px;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-gray-400-rgb: 119, 124, 124;
+    --color-teal-300-rgb: 50, 184, 198;
+    --color-gray-300-rgb: 167, 169, 169;
+    --color-gray-200-rgb: 245, 245, 245;
+
+    --color-bg-1: rgba(29, 78, 216, 0.15);
+    --color-bg-2: rgba(180, 83, 9, 0.15);
+    --color-bg-3: rgba(21, 128, 61, 0.15);
+    --color-bg-4: rgba(185, 28, 28, 0.15);
+    --color-bg-5: rgba(107, 33, 168, 0.15);
+    --color-bg-6: rgba(194, 65, 12, 0.15);
+    --color-bg-7: rgba(190, 24, 93, 0.15);
+    --color-bg-8: rgba(8, 145, 178, 0.15);
+
+    --color-background: var(--color-charcoal-700);
+    --color-surface: var(--color-charcoal-800);
+    --color-text: var(--color-gray-200);
+    --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+    --color-primary: var(--color-teal-300);
+    --color-primary-hover: var(--color-teal-400);
+    --color-primary-active: var(--color-teal-800);
+    --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
+    --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
+    --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
+    --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+    --color-error: var(--color-red-400);
+    --color-success: var(--color-teal-300);
+    --color-warning: var(--color-orange-400);
+    --color-info: var(--color-gray-300);
+    --color-focus-ring: rgba(var(--color-teal-300-rgb), 0.4);
+    --color-btn-primary-text: var(--color-slate-900);
+    --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+    --color-card-border-inner: rgba(var(--color-gray-400-rgb), 0.15);
+    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
+
+    --color-success-rgb: var(--color-teal-300-rgb);
+    --color-error-rgb: var(--color-red-400-rgb);
+    --color-warning-rgb: var(--color-orange-400-rgb);
+    --color-info-rgb: var(--color-gray-300-rgb);
+  }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family-base);
+    background-color: var(--color-background);
+    color: var(--color-text);
+    line-height: var(--line-height-normal);
+    overflow: hidden;
+}
+
+.presentation-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.slides-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: var(--space-32);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s var(--ease-standard);
+    background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background) 100%);
+}
+
+.slide.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.slide.prev {
+    transform: translateX(-100%);
+}
+
+.slide-content {
+    max-width: 1000px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.slide h1 {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--space-24);
+    line-height: var(--line-height-tight);
+}
+
+.slide h2 {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin-bottom: var(--space-20);
+}
+
+.slide h3 {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-primary);
+    margin-bottom: var(--space-16);
+}
+
+.slide p {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-16);
+    line-height: 1.6;
+}
+
+.slide .subtitle {
+    font-size: var(--font-size-xl);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-normal);
+    margin-bottom: var(--space-32);
+}
+
+.slide ul {
+    text-align: left;
+    font-size: var(--font-size-lg);
+    margin: var(--space-16) 0;
+    padding-left: var(--space-24);
+}
+
+.slide li {
+    margin-bottom: var(--space-8);
+    color: var(--color-text);
+}
+
+.code-block {
+    background-color: var(--color-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-base);
+    padding: var(--space-20);
+    margin: var(--space-16) 0;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    text-align: left;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    color: var(--color-text);
+    line-height: 1.4;
+}
+
+.two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-32);
+    align-items: start;
+    text-align: left;
+}
+
+.flowchart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: var(--space-20) 0;
+}
+
+.flowchart-container img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: var(--radius-base);
+    box-shadow: var(--shadow-md);
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-20) 0;
+    font-size: var(--font-size-sm);
+    background-color: var(--color-surface);
+    border-radius: var(--radius-base);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.comparison-table th, .comparison-table td {
+    padding: var(--space-12);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.comparison-table th {
+    background-color: var(--color-primary);
+    color: var(--color-btn-primary-text);
+    font-weight: var(--font-weight-semibold);
+}
+
+.comparison-table td:first-child {
+    font-weight: var(--font-weight-medium);
+    background-color: var(--color-bg-1);
+}
+
+.navigation {
+    position: absolute;
+    bottom: var(--space-24);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+    background-color: var(--color-surface);
+    padding: var(--space-12) var(--space-20);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+}
+
+.nav-btn {
+    background: var(--color-primary);
+    color: var(--color-btn-primary-text);
+    border: none;
+    padding: var(--space-8) var(--space-16);
+    border-radius: var(--radius-base);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--duration-fast) var(--ease-standard);
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.nav-btn:hover {
+    background: var(--color-primary-hover);
+}
+
+.nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.slide-counter {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+    min-width: 60px;
+    text-align: center;
+}
+
+.examples-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-16);
+    margin: var(--space-16) 0;
+}
+
+.example-card {
+    background-color: var(--color-bg-2);
+    padding: var(--space-16);
+    border-radius: var(--radius-base);
+    border: 1px solid var(--color-border);
+}
+
+.example-card h4 {
+    color: var(--color-primary);
+    margin-bottom: var(--space-8);
+    font-size: var(--font-size-base);
+}
+
+.highlight-box {
+    background-color: var(--color-bg-3);
+    padding: var(--space-16);
+    border-radius: var(--radius-base);
+    border-left: 4px solid var(--color-primary);
+    margin: var(--space-16) 0;
+}
+
+@media (max-width: 768px) {
+    .slide {
+        padding: var(--space-16);
+    }
+    
+    .slide h1 {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .slide h2 {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .two-column {
+        grid-template-columns: 1fr;
+        gap: var(--space-16);
+    }
+    
+    .code-block {
+        font-size: var(--font-size-xs);
+        padding: var(--space-12);
+    }
+    
+    .navigation {
+        bottom: var(--space-12);
+        padding: var(--space-8) var(--space-16);
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slides-container">
+            <div class="slide active" id="slide-1">
+                <div class="slide-content">
+                    <h1>Ensemble Learning in Machine Learning</h1>
+                    <p class="subtitle">Combining Multiple Models for Better Performance</p>
+                    <div class="highlight-box">
+                        <p><strong>Topics Covered:</strong></p>
+                        <ul style="text-align: center; list-style: none; padding: 0;">
+                            <li>• Majority Voting</li>
+                            <li>• Bagging (Bootstrap Aggregation)</li>
+                            <li>• Boosting</li>
+                            <li>• Stacking</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide" id="slide-2">
+                <div class="slide-content">
+                    <h2>What is Ensemble Learning?</h2>
+                    <div class="flowchart-container">
+                        <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/9459a879c16d56b9189033c4dc230fbf/b640a9e7-10bc-4c4d-acb8-df6a0a2579fb/5af57b38.png" alt="General Ensemble Learning Workflow">
+                    </div>
+                    <div class="highlight-box">
+                        <p><strong>Core Concept:</strong> Combine multiple models to achieve better performance than any individual model</p>
+                        <ul>
+                            <li><strong>Why it works:</strong> Reduces both bias &amp; variance through model diversity</li>
+                            <li><strong>Wisdom of crowds:</strong> Multiple "opinions" lead to better decisions</li>
+                            <li><strong>Error reduction:</strong> Individual model errors tend to cancel out</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide" id="slide-3">
+                <div class="slide-content">
+                    <h2>Majority Voting</h2>
+                    <div class="two-column">
+                        <div>
+                            <h3>Definition</h3>
+                            <p>A simple ensemble method where multiple models vote on the final prediction. For classification, the class with the most votes wins. For regression, predictions are averaged.</p>
+                            
+                            <h3>Examples</h3>
+                            <div class="examples-grid">
+                                <div class="example-card">
+                                    <h4>Simple Classification</h4>
+                                    <p>3 classifiers predict: [Cat, Dog, Cat] → Final: Cat</p>
+                                </div>
+                                <div class="example-card">
+                                    <h4>Medical Diagnosis</h4>
+                                    <p>Multiple expert opinions combined</p>
+                                </div>
+                                <div class="example-card">
+                                    <h4>Spam Detection</h4>
+                                    <p>Multiple algorithms vote on email classification</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3>Pseudocode</h3>
+                            <div class="code-block"># Majority Voting Pseudocode
+Algorithm: Majority Voting Ensemble
+
+Input: Training set D, Test instance x, Base models M1, M2, ..., Mn
+
+1. FOR each base model Mi:
+   a. Train Mi on dataset D
+   b. Store trained model
+
+2. FOR test instance x:
+   a. predictions = []
+   b. FOR each trained model Mi:
+      i. pred_i = Mi.predict(x)
+      ii. predictions.append(pred_i)
+   
+   c. IF classification:
+      final_prediction = mode(predictions)  # Most frequent class
+   d. ELSE IF regression:
+      final_prediction = mean(predictions)  # Average value
+
+3. RETURN final_prediction</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide" id="slide-4">
+                <div class="slide-content">
+                    <h2>Bagging (Bootstrap Aggregation)</h2>
+                    <div class="two-column">
+                        <div>
+                            <h3>Definition &amp; Process</h3>
+                            <p>Bootstrap Aggregation trains multiple models on different bootstrap samples (sampling with replacement) and combines their predictions.</p>
+                            
+                            <h3>Process Steps</h3>
+                            <ul>
+                                <li>Create bootstrap samples from original dataset</li>
+                                <li>Train one model on each bootstrap sample</li>
+                                <li>Combine predictions through voting/averaging</li>
+                            </ul>
+                            
+                            <h3>Advantages</h3>
+                            <ul>
+                                <li>Reduces overfitting</li>
+                                <li>Decreases variance</li>
+                                <li>Can be parallelized</li>
+                                <li>Works well with high-variance models</li>
+                            </ul>
+                            
+                            <h3>Examples</h3>
+                            <ul>
+                                <li>Random Forest (bagging + feature randomness)</li>
+                                <li>Bagged Decision Trees</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <div class="flowchart-container">
+                                <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/9459a879c16d56b9189033c4dc230fbf/70b59d77-6808-431f-a4a5-dfd4241292b9/0323ad90.png" alt="Bagging Algorithm Flowchart" style="max-height: 300px;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block"># Bagging (Bootstrap Aggregation) Pseudocode
+Algorithm: Bootstrap Aggregation
+
+Input: Training set D, Number of models n, Base algorithm A
+
+1. trained_models = []
+
+2. FOR i = 1 to n:
+   a. D_i = bootstrap_sample(D)  # Sample with replacement
+   b. M_i = train_model(A, D_i)
+   c. trained_models.append(M_i)
+
+3. FOR test instance x:
+   a. predictions = []
+   b. FOR each model M_i in trained_models:
+      i. pred_i = M_i.predict(x)
+      ii. predictions.append(pred_i)
+   
+   c. IF classification:
+      final_prediction = majority_vote(predictions)
+   d. ELSE IF regression:
+      final_prediction = average(predictions)
+
+4. RETURN final_prediction</div>
+                </div>
+            </div>
+
+            <div class="slide" id="slide-5">
+                <div class="slide-content">
+                    <h2>Boosting</h2>
+                    <div class="two-column">
+                        <div>
+                            <h3>Definition</h3>
+                            <p>Sequential ensemble method where each model learns from the mistakes of previous models by adjusting sample weights.</p>
+                            
+                            <h3>Process Steps</h3>
+                            <ul>
+                                <li>Train first model on original data</li>
+                                <li>Increase weights of misclassified samples</li>
+                                <li>Train next model focusing on hard examples</li>
+                                <li>Repeat until desired number of models</li>
+                                <li>Combine models with weighted voting</li>
+                            </ul>
+                            
+                            <h3>Examples</h3>
+                            <ul>
+                                <li>AdaBoost (Adaptive Boosting)</li>
+                                <li>Gradient Boosting</li>
+                                <li>XGBoost, LightGBM</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <div class="flowchart-container">
+                                <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/9459a879c16d56b9189033c4dc230fbf/6357d666-252a-458b-aafa-8df6bd5806d2/213c69d3.png" alt="Boosting Algorithm Flowchart" style="max-height: 350px;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block"># Boosting (AdaBoost) Pseudocode  
+Algorithm: Adaptive Boosting
+
+Input: Training set D = {(x1,y1),...,(xm,ym)}, Number of rounds T
+
+1. Initialize sample weights: w_i = 1/m for all i
+
+2. FOR t = 1 to T:
+   a. Train weak learner h_t using weights w
+   b. Calculate error: ε_t = Σ(w_i * I(h_t(x_i) ≠ y_i))
+   c. IF ε_t > 0.5: BREAK
+   
+   d. Calculate model weight: α_t = 0.5 * ln((1-ε_t)/ε_t)
+   
+   e. Update sample weights:
+      FOR i = 1 to m:
+         IF h_t(x_i) = y_i:
+            w_i = w_i * exp(-α_t)  # Decrease weight for correct
+         ELSE:
+            w_i = w_i * exp(α_t)   # Increase weight for incorrect
+   
+   f. Normalize weights: w_i = w_i / Σ(w_j)
+
+3. FOR test instance x:
+   final_prediction = sign(Σ(α_t * h_t(x)))
+
+4. RETURN final_prediction</div>
+                </div>
+            </div>
+
+            <div class="slide" id="slide-6">
+                <div class="slide-content">
+                    <h2>Stacking</h2>
+                    <div class="two-column">
+                        <div>
+                            <h3>Definition</h3>
+                            <p>Meta-learning approach that uses a meta-model to learn how to best combine predictions from multiple base models.</p>
+                            
+                            <h3>Architecture</h3>
+                            <ul>
+                                <li><strong>Level-0:</strong> Base models trained on original data</li>
+                                <li><strong>Level-1:</strong> Meta-model trained on base model predictions</li>
+                                <li>Uses cross-validation to avoid overfitting</li>
+                            </ul>
+                            
+                            <h3>Examples</h3>
+                            <ul>
+                                <li>Combining different algorithms (SVM, Random Forest, Neural Networks)</li>
+                                <li>Kaggle competitions often use stacking</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <div class="flowchart-container">
+                                <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/9459a879c16d56b9189033c4dc230fbf/21669624-82fe-4d1f-b2d8-b2932cb89f5c/7d1380cd.png" alt="Stacking Algorithm Flowchart" style="max-height: 350px;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block"># Stacking Pseudocode
+Algorithm: Stacked Generalization
+
+Input: Training set D, Base models M1,...,Mn, Meta-model Meta
+
+1. TRAINING PHASE:
+   a. Split D into k folds for cross-validation
+   b. level_0_predictions = []
+   
+   c. FOR each base model M_i:
+      i. cv_predictions = []
+      ii. FOR each fold j:
+         - Train M_i on (k-1) folds
+         - Predict on fold j
+         - cv_predictions.append(predictions)
+      iii. level_0_predictions.append(cv_predictions)
+   
+   d. Create meta-dataset from level_0_predictions
+   e. Train Meta model on meta-dataset
+
+2. PREDICTION PHASE:
+   FOR test instance x:
+   a. base_predictions = []
+   b. FOR each trained base model M_i:
+      i. pred_i = M_i.predict(x)
+      ii. base_predictions.append(pred_i)
+   
+   c. final_prediction = Meta.predict(base_predictions)
+
+3. RETURN final_prediction</div>
+                </div>
+            </div>
+
+            <div class="slide" id="slide-7">
+                <div class="slide-content">
+                    <h2>Comparison of Ensemble Methods</h2>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Majority Voting</th>
+                                <th>Bagging</th>
+                                <th>Boosting</th>
+                                <th>Stacking</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Training Process</td><td>Independent training</td><td>Parallel training on bootstrap samples</td><td>Sequential training</td><td>Two-level training</td></tr>
+                            <tr><td>Model Independence</td><td>Fully independent</td><td>Fully independent</td><td>Dependent (sequential)</td><td>Independent base models</td></tr>
+                            <tr><td>Primary Goal</td><td>Reduce variance</td><td>Reduce variance</td><td>Reduce bias</td><td>Improve overall performance</td></tr>
+                            <tr><td>Sample Weighting</td><td>Equal weights</td><td>Equal weights</td><td>Adaptive weights</td><td>Learned by meta-model</td></tr>
+                            <tr><td>Parallel Processing</td><td>Yes</td><td>Yes</td><td>No</td><td>Partially</td></tr>
+                            <tr><td>Variance vs Bias</td><td>Reduces variance</td><td>Reduces variance</td><td>Reduces bias</td><td>Reduces both</td></tr>
+                            <tr><td>Model Combination</td><td>Simple voting/averaging</td><td>Voting/Averaging</td><td>Weighted combination</td><td>Meta-model learning</td></tr>
+                            <tr><td>Computational Cost</td><td>Low</td><td>Medium</td><td>High</td><td>High</td></tr>
+                            <tr><td>Overfitting Risk</td><td>Low</td><td>Low (prevents overfitting)</td><td>High (can overfit)</td><td>Medium</td></tr>
+                            <tr><td>Best Use Case</td><td>Multiple good models</td><td>High variance models</td><td>High bias models (weak learners)</td><td>Heterogeneous diverse models</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="slide" id="slide-8">
+                <div class="slide-content">
+                    <h2>Key Takeaways &amp; When to Use Each Method</h2>
+                    
+                    <div class="highlight-box">
+                        <h3>Key Takeaways</h3>
+                        <ul>
+                            <li>Ensemble methods combine multiple models to achieve better performance than individual models</li>
+                            <li>Majority Voting is simplest - just combine equal-weight predictions</li>
+                            <li>Bagging reduces variance through bootstrap sampling and parallel training</li>
+                            <li>Boosting reduces bias through sequential learning from errors</li>
+                            <li>Stacking uses meta-learning to optimally combine diverse models</li>
+                            <li>Choose method based on your models' characteristics and computational constraints</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="two-column" style="margin-top: var(--space-24);">
+                        <div>
+                            <h3>When to Use Each Method</h3>
+                            <div class="example-card">
+                                <h4>Majority Voting</h4>
+                                <p>When you have multiple well-performing models of similar quality</p>
+                            </div>
+                            
+                            <div class="example-card">
+                                <h4>Bagging</h4>
+                                <p>When your base models have high variance (like deep decision trees)</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="example-card" style="margin-top: 0;">
+                                <h4>Boosting</h4>
+                                <p>When your base models have high bias (weak learners like shallow trees)</p>
+                            </div>
+                            
+                            <div class="example-card">
+                                <h4>Stacking</h4>
+                                <p>When you have diverse, heterogeneous models and computational resources</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: var(--space-32);">
+                        <h3 style="color: var(--color-primary);">Thank You!</h3>
+                        <p style="font-size: var(--font-size-lg);">Questions &amp; Discussion</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">
+                ← Previous
+            </button>
+            <span class="slide-counter" id="slideCounter">1 / 8</span>
+            <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">
+                Next →
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 8;
+
+        function showSlide(slideNumber) {
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach(slide => {
+                slide.classList.remove('active', 'prev');
+            });
+            
+            const currentSlideElement = document.getElementById(`slide-${slideNumber}`);
+            currentSlideElement.classList.add('active');
+            
+            for (let i = 1; i < slideNumber; i++) {
+                document.getElementById(`slide-${i}`).classList.add('prev');
+            }
+            
+            document.getElementById('slideCounter').textContent = `${slideNumber} / ${totalSlides}`;
+            
+            document.getElementById('prevBtn').disabled = slideNumber === 1;
+            document.getElementById('nextBtn').disabled = slideNumber === totalSlides;
+        }
+
+        function changeSlide(direction) {
+            const newSlide = currentSlide + direction;
+            if (newSlide >= 1 && newSlide <= totalSlides) {
+                currentSlide = newSlide;
+                showSlide(currentSlide);
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                changeSlide(1);
+            }
+        });
+
+        let startX = null;
+        let startY = null;
+
+        document.addEventListener('touchstart', function(event) {
+            startX = event.touches[0].clientX;
+            startY = event.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            if (startX === null || startY === null) {
+                return;
+            }
+
+            let endX = event.changedTouches[0].clientX;
+            let endY = event.changedTouches[0].clientY;
+
+            let diffX = startX - endX;
+            let diffY = startY - endY;
+
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                if (diffX > 0) {
+                    changeSlide(1);
+                } else {
+                    changeSlide(-1);
+                }
+            }
+
+            startX = null;
+            startY = null;
+        });
+
+        showSlide(1);
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+Aspect,Majority Voting,Bagging,Boosting,Stacking
+Training Process,Independent training,Parallel training on bootstrap samples,Sequential training,Two-level training
+Model Independence,Fully independent,Fully independent,Dependent (sequential),Independent base models
+Primary Goal,Reduce variance,Reduce variance,Reduce bias,Improve overall performance
+Sample Weighting,Equal weights,Equal weights,Adaptive weights,Learned by meta-model
+Parallel Processing,Yes,Yes,No,Partially
+Variance vs Bias,Reduces variance,Reduces variance,Reduces bias,Reduces both
+Model Combination,Simple voting/averaging,Voting/Averaging,Weighted combination,Meta-model learning
+Computational Cost,Low,Medium,High,High
+Overfitting Risk,Low,Low (prevents overfitting),High (can overfit),Medium
+Best Use Case,Multiple good models,"High variance models (e.g., Decision Trees)",High bias models (weak learners),Heterogeneous diverse models
